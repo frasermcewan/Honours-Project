@@ -41,6 +41,7 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
     private Button markerHomeButton;
     private Button markerAwayButton;
     private ArrayList mGeofenceList;
+    private PendingIntent mGeofencePendingIntent;
     private Geofence mGeofence;
     private LatLng touchLocation;
     private Marker homeMarker;
@@ -74,12 +75,6 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
                 .build();
 
         mGoogleApiClient.connect();
-
-//        LocationServices.GeofencingApi.addGeofences(
-//                mGoogleApiClient,
-//                getGeofencingRequest(),
-//                getGeofencePendingIntent()
-//        ).setResultCallback(this);
 
 
     }
@@ -149,46 +144,8 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
 
     }
 
-//    private GeofencingRequest getGeofencingRequest() {
-//        GeofencingRequest.Builder builder = new GeofencingRequest.Builder();
-//        builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_DWELL);
-//        builder.addGeofences(mGeofenceList);
-//        return builder.build();
-//    }
 
 
-//    public void geoFences () {
-//
-//    //63, 512
-//        mGeofenceList.add(new Geofence.Builder()
-//                // Set the request ID of the geofence. This is a string to identify this
-//                // geofence.
-//                .setRequestId("Fence1")
-//
-//                .setCircularRegion(
-//                        location.getLatitude(),
-//                        location.getLongitude(),
-//                        250
-//                )
-//                .setExpirationDuration(3000)
-//                .setLoiteringDelay(60000)
-//                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
-//                        Geofence.GEOFENCE_TRANSITION_EXIT | Geofence.GEOFENCE_TRANSITION_DWELL)
-//                .build());
-//    }
-
-
-//    private PendingIntent getGeofencePendingIntent() {
-//        // Reuse the PendingIntent if we already have it.
-//        if (mGeofencePendingIntent != null) {
-//            return mGeofencePendingIntent;
-//        }
-//        Intent intent = new Intent(this, GeofenceTransitionsIntentService.class);
-//        // We use FLAG_UPDATE_CURRENT so that we get the same pending intent back when
-//        // calling addGeofences() and removeGeofences().
-//        return PendingIntent.getService(this, 0, intent, PendingIntent.
-//                FLAG_UPDATE_CURRENT);
-//    }
 
 
     @Override
@@ -261,41 +218,5 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
 }
 
 
-    //@Override
-//    protected void onHandleIntent(Intent intent) {
-//        protected void onHandleIntent(Intent intent) {
-//            GeofencingEvent geofencingEvent = GeofencingEvent.fromIntent(intent);
-//            if (geofencingEvent.hasError()) {
-//                String errorMessage = GeofenceErrorMessages.getErrorString(this,
-//                        geofencingEvent.getErrorCode());
-//                return;
-//            }
-//
-//            // Get the transition type.
-//            int geofenceTransition = geofencingEvent.getGeofenceTransition();
-//
-//            // Test that the reported transition was of interest.
-//            if (geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER ||
-//                    geofenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT) {
-//
-//                // Get the geofences that were triggered. A single event can trigger
-//                // multiple geofences.
-//                List triggeringGeofences = geofencingEvent.getTriggeringGeofences();
-//
-//                // Get the transition details as a String.
-//                String geofenceTransitionDetails = getGeofenceTransitionDetails(
-//                        this,
-//                        geofenceTransition,
-//                        triggeringGeofences
-//                );
-//
-//                // Send notification and log the transition details.
-//                sendNotification(geofenceTransitionDetails);
-//                Log.i(TAG, geofenceTransitionDetails);
-//            } else {
-//                // Log the error.
-//                Log.e(TAG, getString(R.string.geofence_transition_invalid_type,
-//                        geofenceTransition));
-//            }
-//    }
-//}
+
+
