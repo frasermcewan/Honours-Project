@@ -12,38 +12,6 @@ import android.widget.TextView;
 /**
  * Created by mcewans_lager on 18/01/16.
  */
-public class Wifi extends Activity implements SensorEventListener {
+public class Wifi {
 
-
-
-
-
-    private SensorManager mSensorManager;
-
-    private Sensor mStepCounterSensor;
-
-    private Sensor mStepDetectorSensor;
-
-
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        mSensorManager = (SensorManager)
-                getSystemService(Context.SENSOR_SERVICE);
-        mStepCounterSensor = mSensorManager
-                .getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
-        mStepDetectorSensor = mSensorManager
-                .getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
-    }
-
-
-
-    public void onSensorChanged(SensorEvent event) {
-
-    }
-
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
-    }
 }
