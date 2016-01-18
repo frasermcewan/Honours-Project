@@ -1,0 +1,47 @@
+<RelativeLayout
+
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+    android:id="@+id/base">
+
+<fragment xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/map" tools:context=".RouteFinding"
+    android:name="com.google.android.gms.maps.SupportMapFragment"
+    android:layout_above="@+id/linearLayout1"/>
+
+
+<LinearLayout
+android:id="@+id/linearLayout1"
+android:gravity="bottom"
+android:layout_width="fill_parent"
+android:orientation="horizontal"
+android:layout_height="wrap_content"
+android:layout_weight="1"
+android:layout_alignParentBottom="true">
+
+<Button android:id="@+id/AlertButton"
+android:text="Send Alert"
+android:layout_height="wrap_content"
+android:layout_width="wrap_content"
+android:layout_weight="1"></Button>
+<Button
+    android:id="@+id/MarkerHomeButton"
+    android:text="Add Home Marker"
+android:layout_height="wrap_content"
+android:layout_width="wrap_content"
+android:layout_weight="1"></Button>
+    <Button
+        android:id="@+id/MarkerWorkButton"
+        android:text="Add Work Marker"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_weight="1"></Button>
+    </LinearLayout>
+
+
+    </RelativeLayout>
