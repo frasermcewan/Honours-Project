@@ -1,6 +1,7 @@
 package com.example.mcewans_lager.honoursproject;
 
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.IntentService;
 import android.app.PendingIntent;
@@ -27,8 +28,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.util.ArrayList;
-import java.util.List;
+
 
 
 public class RouteFinding extends FragmentActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener, View.OnClickListener {
@@ -40,13 +40,11 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
     private Button alertButton;
     private Button markerHomeButton;
     private Button markerAwayButton;
-    private ArrayList mGeofenceList;
     private PendingIntent mGeofencePendingIntent;
     private Geofence mGeofence;
     private LatLng touchLocation;
     private Marker homeMarker;
     private Marker workMarker;
-    private Marker standardMarker;
     private Boolean Home = true;
     private Boolean Work = false;
 
@@ -146,7 +144,23 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
 
 
 
+    private GeofencingRequest getGeofencingRequest() {
+        GeofencingRequest.Builder builder = new GeofencingRequest.Builder();
+        builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_DWELL);
+        return builder.build();
+    }
 
+    private PendingIntent getGeofencePendingIntent() {
+        // Reuse the PendingIntent if we already have it.
+        if (mGeofencePendingIntent != null) {
+            return mGeofencePendingIntent;
+        }
+        Intent intent = new Intent(this, GeofenceTransitionsIntentService.class);
+        // We use FLAG_UPDATE_CURRENT so that we get the same pending intent back when
+        // calling addGeofences() and removeGeofences().
+        return PendingIntent.getService(this, 0, intent, PendingIntent.
+                FLAG_UPDATE_CURRENT);
+    }
 
     @Override
     public void onConnected(Bundle bundle) {
@@ -215,6 +229,7 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
         }
 
     }
+
 }
 
 
