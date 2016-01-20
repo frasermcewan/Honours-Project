@@ -15,6 +15,8 @@ import android.view.View;
 import android.widget.Button;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingEvent;
 import com.google.android.gms.location.GeofencingRequest;
@@ -74,15 +76,16 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
                 .addApi(LocationServices.API)
                 .build();
 
-
         LocationServices.GeofencingApi.addGeofences(
                 mGoogleApiClient,
                 getGeofencingRequest(),
                 getGeofencePendingIntent()
-        ).setResultCallback(this);
+        ).setResultCallback((ResultCallback<Status>) this);
+
 
 
         mGoogleApiClient.connect();
+
 
 
     }
