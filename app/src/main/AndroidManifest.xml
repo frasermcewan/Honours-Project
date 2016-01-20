@@ -28,7 +28,7 @@
             android:value="@string/google_maps_key" />
 
         <activity
-            android:name=".MainActivity"
+            android:name=".StepCounter"
             android:label="Project" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
