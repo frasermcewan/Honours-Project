@@ -1,7 +1,9 @@
 package com.example.mcewans_lager.honoursproject;
 
 
+import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Fragment;
 import android.app.IntentService;
 import android.app.PendingIntent;
 import android.content.DialogInterface;
@@ -33,7 +35,7 @@ import java.util.List;
 
 public class RouteFinding extends FragmentActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener, View.OnClickListener {
 
-    private GoogleMap mMap; // Might be null if Google Play services APK is not available.
+    private GoogleMap mMap;
     private GoogleApiClient mGoogleApiClient;
     private Location location;
     private LatLng locale;
