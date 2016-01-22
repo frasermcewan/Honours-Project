@@ -1,7 +1,5 @@
 package com.example.mcewans_lager.honoursproject;
 
-import android.app.Activity;
-import android.app.Fragment;
 import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -11,6 +9,8 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.widget.TextView;
 import android.widget.Toast;
+
+
 
 /**
  * Created by mcewans_lager on 18/01/16.
@@ -50,8 +50,16 @@ public class StepCounter extends FragmentActivity implements SensorEventListener
 
     @Override
     public void onSensorChanged(SensorEvent event) {
+        float[] values = event.values;
+        int value = -1;
+
+        if (values.length > 0) {
+            value = (int) values[0];
+        }
+
+
         if(activityRunning) {
-            count.setText(String.valueOf(event.values[0]));
+            count.setText("Steps : " + String.valueOf(value));
         }
     }
 
