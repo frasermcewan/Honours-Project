@@ -8,6 +8,7 @@ import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.Location;
+import android.provider.SyncStateContract;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -30,7 +31,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-
+import java.util.List;
 
 
 public class RouteFinding extends FragmentActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener, View.OnClickListener {
@@ -44,6 +45,7 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
     private Button markerAwayButton;
     private PendingIntent mGeofencePendingIntent;
     private Geofence mGeofence;
+    private List mGeofenceList;
     private LatLng touchLocation;
     private Marker homeMarker;
     private Marker workMarker;
@@ -181,6 +183,23 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
                 mGoogleApiClient);
         if (location != null) {
             locale = new LatLng(location.getLatitude(), location.getLongitude());
+
+
+            mGeofenceList.add(new Geofence.Builder()
+                    // Set the request ID of the geofence. This is a string to identify this
+                    // geofence.
+                    .setRequestId(entry.getKey())
+
+                    .setCircularRegion(
+                            location.getLatitude(),
+                            location.getLongitude(),
+                            SyncStateContract.Constants.GEOFENCE_RADIUS_IN_METERS
+                    )
+                    .setExpirationDuration(Constants.GEOFENCE_EXPIRATION_IN_MILLISECONDS)
+                    .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
+                            Geofence.GEOFENCE_TRANSITION_EXIT)
+                    .build());
+
 
             Marker addMarker;
             addMarker = mMap.addMarker(new MarkerOptions().position(locale).title("Actual Location"));
