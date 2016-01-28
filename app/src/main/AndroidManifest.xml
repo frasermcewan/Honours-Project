@@ -37,7 +37,9 @@
             </intent-filter>
         </activity>
 
+
         <service android:name=".GeofenceTransitionsIntentService"/>
+
     </application>
 
 </manifest>
