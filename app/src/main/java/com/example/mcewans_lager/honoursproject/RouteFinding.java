@@ -31,6 +31,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -44,13 +45,13 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
     private Button markerHomeButton;
     private Button markerAwayButton;
     private PendingIntent mGeofencePendingIntent;
-    private Geofence mGeofence;
     private List mGeofenceList;
     private LatLng touchLocation;
     private Marker homeMarker;
     private Marker workMarker;
     private Boolean Home = true;
     private Boolean Work = false;
+    private int Time;
 
 
 
@@ -61,6 +62,7 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
         setContentView(R.layout.activity_route_finding);
         setUpMapIfNeeded();
 
+        mGeofenceList = new ArrayList<Geofence>();
 
         alertButton = (Button) findViewById(R.id.AlertButton);
         markerHomeButton = (Button) findViewById(R.id.MarkerHomeButton);
@@ -77,12 +79,6 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API)
                 .build();
-
-//        LocationServices.GeofencingApi.addGeofences(
-//                mGoogleApiClient,
-//                getGeofencingRequest(),
-//                getGeofencePendingIntent()
-//        ).setResultCallback((ResultCallback<Status>) this);
 
 
 
@@ -138,7 +134,6 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
                     }
                     homeMarker = mMap.addMarker(new MarkerOptions().position(touchLocation).title("Home Location").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
                     Home = false;
-//                    new Geofence.Builder().build();
 
                 } else if (Work == true) {
 
@@ -159,17 +154,7 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
 
 
 
-    private GeofencingRequest getGeofencingRequest() {
-        GeofencingRequest.Builder builder = new GeofencingRequest.Builder();
-        builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER);
-        return builder.build();
-    }
-
     private PendingIntent getGeofencePendingIntent() {
-        // Reuse the PendingIntent if we already have it.
-        if (mGeofencePendingIntent != null) {
-            return mGeofencePendingIntent;
-        }
         Intent intent = new Intent(this, GeofenceTransitionsIntentService.class);
         return PendingIntent.getService(this, 0, intent, PendingIntent.
                 FLAG_UPDATE_CURRENT);
@@ -177,26 +162,42 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
 
     @Override
     public void onConnected(Bundle bundle) {
+
+
+
+
         location = LocationServices.FusedLocationApi.getLastLocation(
                 mGoogleApiClient);
+
+
+
+
         if (location != null) {
+
+
             locale = new LatLng(location.getLatitude(), location.getLongitude());
+
+
 
 
             mGeofenceList.add(new Geofence.Builder()
 
-                    .setRequestId(entry.getKey())
+                    .setRequestId("Test GeoFence")
 
                     .setCircularRegion(
                             location.getLatitude(),
                             location.getLongitude(),
-                            SyncStateContract.Constants.GEOFENCE_RADIUS_IN_METERS
+                            50
                     )
-                    .setExpirationDuration(SyncStateContract.Constants.GEOFENCE_EXPIRATION_IN_MILLISECONDS)
+                    .setExpirationDuration(40000)
+                    .setLoiteringDelay(1000)
                     .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
                             Geofence.GEOFENCE_TRANSITION_EXIT | Geofence.GEOFENCE_TRANSITION_DWELL)
                     .build());
 
+
+            LocationServices.GeofencingApi.addGeofences(mGoogleApiClient, mGeofenceList,
+                    getGeofencePendingIntent());
 
             Marker addMarker;
             addMarker = mMap.addMarker(new MarkerOptions().position(locale).title("Actual Location"));
@@ -258,6 +259,14 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
         }
 
     }
+
+
+    public int getTime() {
+
+        return Time;
+
+    }
+
 
 }
 

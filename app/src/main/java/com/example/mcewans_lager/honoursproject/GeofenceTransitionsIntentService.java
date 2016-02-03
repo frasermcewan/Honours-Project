@@ -75,7 +75,6 @@ public class GeofenceTransitionsIntentService extends IntentService {
             // Send notification and log the transition details.
             sendNotification(geofenceTransitionDetails);
             Log.i(TAG, geofenceTransitionDetails);
-        } else {
         }
     }
 
@@ -159,11 +158,13 @@ public class GeofenceTransitionsIntentService extends IntentService {
     private String getTransitionString(int transitionType) {
         switch (transitionType) {
             case Geofence.GEOFENCE_TRANSITION_ENTER:
-                return getString(R.string.geofence_transition_entered);
+                return "Enter";
             case Geofence.GEOFENCE_TRANSITION_EXIT:
-                return getString(R.string.geofence_transition_exited);
+                return "Exit";
+            case Geofence.GEOFENCE_TRANSITION_DWELL:
+                return "Dwell";
             default:
-                return getString(R.string.unknown_geofence_transition);
+                return "Unknown";
         }
     }
 }
