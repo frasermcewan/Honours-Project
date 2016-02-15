@@ -32,7 +32,12 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.SimpleTimeZone;
+import java.util.TimeZone;
 
 
 public class RouteFinding extends FragmentActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener, View.OnClickListener {
@@ -62,6 +67,7 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
         setContentView(R.layout.activity_route_finding);
         setUpMapIfNeeded();
 
+
         mGeofenceList = new ArrayList<Geofence>();
 
         alertButton = (Button) findViewById(R.id.AlertButton);
@@ -83,6 +89,9 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
 
 
         mGoogleApiClient.connect();
+
+//        LocationServices.GeofencingApi.addGeofences(mGoogleApiClient, mGeofenceList,
+//                getGeofencePendingIntent());
 
 
 
@@ -135,6 +144,22 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
                     homeMarker = mMap.addMarker(new MarkerOptions().position(touchLocation).title("Home Location").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
                     Home = false;
 
+                    mGeofenceList.add(new Geofence.Builder()
+
+                            .setRequestId("Home GeoFence")
+
+                            .setCircularRegion(
+                                    location.getLatitude(),
+                                    location.getLongitude(),
+                                    50
+                            )
+                            .setExpirationDuration(40000)
+                            .setLoiteringDelay(1000)
+                            .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
+                                    Geofence.GEOFENCE_TRANSITION_EXIT | Geofence.GEOFENCE_TRANSITION_DWELL)
+                            .build());
+                            addGeoFences();
+
                 } else if (Work == true) {
 
                     if (workMarker != null) {
@@ -144,6 +169,24 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
 
                     workMarker = mMap.addMarker(new MarkerOptions().position(touchLocation).title("Work Location").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
                     Work = false;
+
+
+                    mGeofenceList.add(new Geofence.Builder()
+
+                            .setRequestId("Work GeoFence")
+
+                            .setCircularRegion(
+                                    location.getLatitude(),
+                                    location.getLongitude(),
+                                    50
+                            )
+                            .setExpirationDuration(40000)
+                            .setLoiteringDelay(5000)
+                            .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
+                                    Geofence.GEOFENCE_TRANSITION_EXIT | Geofence.GEOFENCE_TRANSITION_DWELL)
+                            .build());
+                            addGeoFences();
+
                 }
 
 
@@ -180,24 +223,23 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
 
 
 
-            mGeofenceList.add(new Geofence.Builder()
+//            mGeofenceList.add(new Geofence.Builder()
+//
+//                    .setRequestId("Test GeoFence")
+//
+//                    .setCircularRegion(
+//                            location.getLatitude(),
+//                            location.getLongitude(),
+//                            50
+//                    )
+//                    .setExpirationDuration(40000)
+//                    .setLoiteringDelay(1000)
+//                    .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
+//                            Geofence.GEOFENCE_TRANSITION_EXIT | Geofence.GEOFENCE_TRANSITION_DWELL)
+//                    .build());
 
-                    .setRequestId("Test GeoFence")
-
-                    .setCircularRegion(
-                            location.getLatitude(),
-                            location.getLongitude(),
-                            50
-                    )
-                    .setExpirationDuration(40000)
-                    .setLoiteringDelay(1000)
-                    .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
-                            Geofence.GEOFENCE_TRANSITION_EXIT | Geofence.GEOFENCE_TRANSITION_DWELL)
-                    .build());
 
 
-            LocationServices.GeofencingApi.addGeofences(mGoogleApiClient, mGeofenceList,
-                    getGeofencePendingIntent());
 
             Marker addMarker;
             addMarker = mMap.addMarker(new MarkerOptions().position(locale).title("Actual Location"));
@@ -207,6 +249,12 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
 
     }
 
+
+    public void addGeoFences() {
+        LocationServices.GeofencingApi.addGeofences(mGoogleApiClient, mGeofenceList,
+                getGeofencePendingIntent());
+
+    }
 
     @Override
     public void onConnectionSuspended(int i) {
@@ -260,8 +308,30 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
 
     }
 
-
     public int getTime() {
+
+        String[] ids = TimeZone.getAvailableIDs(0 * 60 * 60 * 1000);
+        SimpleTimeZone GMT = new SimpleTimeZone(0 * 60 * 60 * 1000, ids[0]);
+
+
+        GMT.setStartRule(Calendar.MARCH, 27, Calendar.SUNDAY, 2 * 60 * 60 * 1000);
+        GMT.setEndRule(Calendar.OCTOBER, 30, Calendar.SUNDAY, 2 * 60 * 60 * 1000);
+
+
+        Calendar calendar = new GregorianCalendar(GMT);
+        Date trialTime = new Date();
+        calendar.setTime(trialTime);
+
+
+           int holder =  calendar.get(Calendar.HOUR_OF_DAY);
+
+
+        if (holder >= 9 && holder <17) {
+            Work = true;
+
+        } else if (holder>17 && holder <9) {
+            Home = true;
+        }
 
         return Time;
 
