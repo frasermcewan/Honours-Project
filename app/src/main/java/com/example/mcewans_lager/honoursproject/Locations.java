@@ -9,7 +9,7 @@ public class Locations {
 
     private int _id;
     private String _locationName;
-    private LatLng _GPS;
+    private int _GPS;
     private String _Wifi;
 
 
@@ -31,7 +31,7 @@ public class Locations {
 
     }
 
-    public void setGPS(LatLng GPS) {
+    public void setGPS(int GPS) {
         this._GPS = GPS;
     }
 
@@ -47,7 +47,7 @@ public class Locations {
         return _id;
     }
 
-    public LatLng getGPS () {
+    public int getGPS () {
         return _GPS;
     }
 
