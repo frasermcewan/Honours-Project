@@ -1,6 +1,7 @@
 package com.example.mcewans_lager.honoursproject;
 
 import android.content.Context;
+import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -25,6 +26,8 @@ public class StepCounter extends FragmentActivity implements SensorEventListener
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.step_counter);
+        Intent intent = new Intent(this,StepCounterIntentService.class);
+        startService(intent);
 
         count = (TextView) findViewById(R.id.count);
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
@@ -67,5 +70,10 @@ public class StepCounter extends FragmentActivity implements SensorEventListener
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
     }
+
+    public int getCountValue (int value) {
+        return value;
+    }
+
 }
 
