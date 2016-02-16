@@ -31,6 +31,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -222,25 +223,6 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
 
 
 
-
-//            mGeofenceList.add(new Geofence.Builder()
-//
-//                    .setRequestId("Test GeoFence")
-//
-//                    .setCircularRegion(
-//                            location.getLatitude(),
-//                            location.getLongitude(),
-//                            50
-//                    )
-//                    .setExpirationDuration(40000)
-//                    .setLoiteringDelay(1000)
-//                    .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
-//                            Geofence.GEOFENCE_TRANSITION_EXIT | Geofence.GEOFENCE_TRANSITION_DWELL)
-//                    .build());
-
-
-
-
             Marker addMarker;
             addMarker = mMap.addMarker(new MarkerOptions().position(locale).title("Actual Location"));
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(locale, 10));
@@ -310,31 +292,11 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
 
     public int getTime() {
 
-        String[] ids = TimeZone.getAvailableIDs(0 * 60 * 60 * 1000);
-        SimpleTimeZone GMT = new SimpleTimeZone(0 * 60 * 60 * 1000, ids[0]);
-
-
-        GMT.setStartRule(Calendar.MARCH, 27, Calendar.SUNDAY, 2 * 60 * 60 * 1000);
-        GMT.setEndRule(Calendar.OCTOBER, 30, Calendar.SUNDAY, 2 * 60 * 60 * 1000);
-
-
-        Calendar calendar = new GregorianCalendar(GMT);
-        Date trialTime = new Date();
-        calendar.setTime(trialTime);
-
-
-           int holder =  calendar.get(Calendar.HOUR_OF_DAY);
-
-
-        if (holder >= 9 && holder <17) {
-            Work = true;
-
-        } else if (holder>17 && holder <9) {
-            Home = true;
-        }
+        Calendar cal = Calendar.getInstance();
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:");
+        Time = Integer.parseInt(sdf.format(cal.getTime()));
 
         return Time;
-
     }
 
 
