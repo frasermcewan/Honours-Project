@@ -2,22 +2,25 @@ package com.example.mcewans_lager.honoursproject;
 
 import android.app.IntentService;
 import android.content.Intent;
+import android.util.Log;
 
 /**
  * Created by mcewans_lager on 16/02/16.
  */
 public class StepCounterIntentService extends IntentService {
-    /**
-     * Creates an IntentService.  Invoked by your subclass's constructor.
-     *
-     * @param name Used to name the worker thread, important only for debugging.
-     */
-    public StepCounterIntentService(String name) {
-        super(name);
+
+    protected static final String TAG = "StepsTaken";
+
+
+    public StepCounterIntentService() {
+        super(TAG);
+
     }
 
     @Override
     protected void onHandleIntent(Intent intent) {
+        Log.i(TAG, "onHandleIntent: We made it");
+    
 
     }
 }
