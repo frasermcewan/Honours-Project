@@ -29,7 +29,7 @@
 
         <activity
             android:name=".RouteFinding"
-            android:label="Personal Motivation" >
+            android:label="Project" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -37,9 +37,7 @@
             </intent-filter>
         </activity>
 
-
         <service android:name=".GeofenceTransitionsIntentService"/>
-
     </application>
 
 </manifest>
