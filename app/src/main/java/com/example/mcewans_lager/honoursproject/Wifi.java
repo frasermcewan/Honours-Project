@@ -26,6 +26,8 @@ public class Wifi extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.wefee);
+        Intent intent = new Intent(this, WifiIntentService.class);
+        startService(intent);
 
 
 
