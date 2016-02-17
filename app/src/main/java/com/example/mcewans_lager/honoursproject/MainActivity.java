@@ -11,42 +11,66 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+
 /**
  * Created by mcewans_lager on 20/01/16.
  */
 public class MainActivity extends FragmentActivity {
 
+    private static String targetURL = "api.openweathermap.org/data/2.5/forecast?q=Glasgow&mode=xml&APPID=b33efea24270c8a29ff5678f3730ecb2";
+//    private static String APIKey = "&APPID=b33efea24270c8a29ff5678f3730ecb2";
+    URL Weather;
+
+    public MainActivity() {
+        Weather = new URL(targetURL);
+    }
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
-        createButtons();
-    }
-
-    protected void createButtons() {
-        Button GPSbutton = (Button) findViewById(R.id.button1);
-        Button WIFIbutton = (Button) findViewById(R.id.button2);
-        Button Stepbutton = (Button) findViewById(R.id.button3);
-
-        GPSbutton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, RouteFinding.class));
-            }
-        });
-
-        WIFIbutton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, Wifi.class));
-            }
-        });
-
-        Stepbutton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, StepCounter.class));
-            }
-        });
 
     }
-}
+
+
+    public String getWeather() {
+        HttpURLConnection connection  = null ;
+        InputStream is = null;
+
+
+            try {
+                SAXParserFactory spx = SAXParserFactory.newInstance();
+                SAXParser sp = spx.newSAXParser();
+                XMLReader xr = sp.getXMLReader();
+
+                XMLHandler handle = new XMLHandler();
+                xr.setContentHandler(handle);
+                xr.parse(new InputSource(Weather.openStream()));
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (ParserConfigurationException e) {
+                e.printStackTrace();
+            } catch (SAXException e) {
+                e.printStackTrace();
+            }
+
+        return null;
+    }
+
+    }
+
+
+
+
