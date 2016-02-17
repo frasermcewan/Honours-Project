@@ -17,6 +17,7 @@ public class XMLHandler extends DefaultHandler {
 public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
     if (localName.equals("name")) {
         String Location = attributes.getValue("n");
+     
 
     }
 }
