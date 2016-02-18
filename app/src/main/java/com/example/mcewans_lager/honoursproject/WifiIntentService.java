@@ -12,8 +12,8 @@ public class WifiIntentService extends IntentService {
     private static final String TAG = "Test";
 
 
-    public WifiIntentService(String name) {
-        super("WifiIntentService");
+    public WifiIntentService() {
+        super(TAG);
     }
 
     protected void onHandleIntent(Intent intent) {
