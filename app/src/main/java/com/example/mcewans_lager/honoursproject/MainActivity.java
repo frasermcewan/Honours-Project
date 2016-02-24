@@ -18,6 +18,7 @@ import org.xml.sax.XMLReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -34,19 +35,22 @@ public class MainActivity extends FragmentActivity {
     URL Weather;
 
     public MainActivity() {
-        Weather = new URL(targetURL);
+        try {
+            Weather = new URL(targetURL);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
     }
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
+        getWeather();
 
     }
 
 
     public String getWeather() {
-        HttpURLConnection connection  = null ;
-        InputStream is = null;
 
 
             try {
