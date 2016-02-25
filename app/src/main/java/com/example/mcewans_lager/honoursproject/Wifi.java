@@ -76,18 +76,17 @@ public class Wifi extends Activity {
     }
 
 
-    class WifiReceiver extends BroadcastReceiver  {
-
+    class WifiReceiver extends BroadcastReceiver {
 
 
         public void onReceive(Context c, Intent intent) {
             sb = new StringBuilder();
             String[] parts;
-          wList = new ArrayList<>();
+            wList = new ArrayList<>();
 
             wifiList = mainWifi.getScanResults();
 
-            for (int q = 0; q<wifiList.size(); q++) {
+            for (int q = 0; q < wifiList.size(); q++) {
                 ScanResult result = wifiList.get(q);
                 wList.add(result.SSID);
             }
@@ -100,13 +99,13 @@ public class Wifi extends Activity {
             mainText.setText(sb);
             showList();
         }
-    }
 
-    public void showList () {
-        for (int i = 0; i<wList.size(); i++) {
-            Log.i(wList.get(i),"This is wifi number " + (i+1));
+
+        public void showList() {
+            for (int i = 0; i < wList.size(); i++) {
+                Log.i(wList.get(i), "This is wifi number " + (i + 1));
+            }
+
         }
-
     }
-
 }

@@ -1,6 +1,7 @@
 package com.example.mcewans_lager.honoursproject;
 
 import android.app.IntentService;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -33,13 +34,8 @@ public class WifiIntentService extends IntentService {
     }
 
     protected void onHandleIntent(Intent intent) {
-        WifiList wi = new WifiList(this);
-
-        wi.startWifi();
-        wi.getList();
-        wi.returnList();
-
         Log.i(TAG, "The service has begun");
+        startWifi();
 
     }
 
@@ -48,7 +44,48 @@ public class WifiIntentService extends IntentService {
         receiverWifi = new WifiReceiver();
         registerReceiver(receiverWifi, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
         mainWifi.startScan();
-        mainText.setText("\nStarting Scan...\n");
+    }
+
+    public void register() {
+        registerReceiver(receiverWifi, new IntentFilter(
+                WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+
+    }
+
+    public void deRegister() {
+        unregisterReceiver(receiverWifi);
+    }
+
+    class WifiReceiver extends BroadcastReceiver {
+
+
+        public void onReceive(Context c, Intent intent) {
+            sb = new StringBuilder();
+            wList = new ArrayList<>();
+
+            wifiList = mainWifi.getScanResults();
+
+            for (int q = 0; q < wifiList.size(); q++) {
+                ScanResult result = wifiList.get(q);
+                wList.add(result.SSID);
+            }
+
+            for (int i = 0; i < wifiList.size(); i++) {
+                sb.append((wifiList.get(i)).toString());
+                sb.append('\n');
+                sb.append('\n');
+            }
+            mainText.setText(sb);
+            showList();
+        }
+
+
+        public void showList() {
+            for (int i = 0; i < wList.size(); i++) {
+                Log.i(wList.get(i), "This is wifi number " + (i + 1));
+            }
+
+        }
     }
 
 }
