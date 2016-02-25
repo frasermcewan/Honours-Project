@@ -4,6 +4,8 @@
 
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
 
     <application
         android:allowBackup="true"
@@ -18,7 +20,7 @@
             android:value="@string/google_maps_key" />
 
         <activity
-            android:name=".Wifi"
+            android:name=".MainClass"
             android:label="Personal Motivation" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

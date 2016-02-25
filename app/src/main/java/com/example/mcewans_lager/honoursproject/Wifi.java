@@ -19,14 +19,13 @@ import android.widget.TextView;
 
 public class Wifi extends Activity {
 
-    String holder;
-    Time time;
+    
     TextView mainText;
     WifiManager mainWifi;
     WifiReceiver receiverWifi;
     List<ScanResult> wifiList;
     StringBuilder sb = new StringBuilder();
-    ArrayList<String> wList;
+    static ArrayList<String> wList;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,6 +39,7 @@ public class Wifi extends Activity {
     }
 
 
+
     public void startWifi () {
         mainText = (TextView) findViewById(R.id.mainText);
         mainWifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
@@ -50,7 +50,20 @@ public class Wifi extends Activity {
     }
 
 
+    public  static List<String> returnList () {
+        return wList;
 
+    }
+
+    public void register() {
+        registerReceiver(receiverWifi, new IntentFilter(
+                WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+
+    }
+
+    public void deRegister() {
+        unregisterReceiver(receiverWifi);
+    }
     protected void onPause() {
         unregisterReceiver(receiverWifi);
         super.onPause();
