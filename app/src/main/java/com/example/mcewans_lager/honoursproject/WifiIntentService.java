@@ -1,7 +1,9 @@
 package com.example.mcewans_lager.honoursproject;
 
 import android.app.IntentService;
+import android.content.Context;
 import android.content.Intent;
+import android.net.wifi.WifiManager;
 import android.util.Log;
 
 /**
@@ -10,6 +12,8 @@ import android.util.Log;
 public class WifiIntentService extends IntentService {
 
     private static final String TAG = "Test";
+
+
 
 
     public WifiIntentService() {

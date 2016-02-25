@@ -27,6 +27,10 @@
             </intent-filter>
         </activity>
         <service android:name=".WifiIntentService"/>
+        <receiver
+            android:name=".WifiHolder"
+            android:process=":remote" >
+        </receiver>
     </application>
 
 </manifest>
