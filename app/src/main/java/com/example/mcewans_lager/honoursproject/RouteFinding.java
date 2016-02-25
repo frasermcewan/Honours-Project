@@ -1,15 +1,12 @@
 package com.example.mcewans_lager.honoursproject;
 
 
-import android.app.Activity;
+
 import android.app.AlertDialog;
-import android.app.Fragment;
-import android.app.IntentService;
 import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.Location;
-import android.provider.SyncStateContract;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -17,11 +14,7 @@ import android.view.View;
 import android.widget.Button;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.Geofence;
-import com.google.android.gms.location.GeofencingEvent;
-import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -31,18 +24,15 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.List;
-import java.util.SimpleTimeZone;
-import java.util.TimeZone;
+
 
 
 public class RouteFinding extends FragmentActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener, View.OnClickListener {
+
+    protected static final String TAG = "Time";
 
     private GoogleMap mMap;
     private GoogleApiClient mGoogleApiClient;
@@ -76,6 +66,7 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_route_finding);
         setUpMapIfNeeded();
+        getTime();
 
 
         mGeofenceList = new ArrayList<Geofence>();
@@ -109,6 +100,7 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
 
     protected void onStart(Bundle savedInstanceState) {
         super.onStart();
+
         //Small Changes
         mGoogleApiClient.connect();
     }
@@ -146,6 +138,7 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
 
                 touchLocation = point;
 
+
                 if (Home == true) {
 
                     if (homeMarker != null) {
@@ -161,7 +154,7 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
                             .setCircularRegion(
                                     touchLocation.latitude,
                                     touchLocation.longitude,
-                                    50
+                                    500
                             )
                             .setExpirationDuration(40000)
                             .setLoiteringDelay(1000)
@@ -208,6 +201,7 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
 
 
     private PendingIntent getGeofencePendingIntent() {
+        Log.i(TAG, "getGeofencePendingIntent: Intent Called");
         Intent intent = new Intent(this, GeofenceTransitionsIntentService.class);
         return PendingIntent.getService(this, 0, intent, PendingIntent.
                 FLAG_UPDATE_CURRENT);
@@ -241,6 +235,8 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
         }
 
     }
+
+
 
 
     public void addGeoFences() {
@@ -280,7 +276,7 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
             stepsTaken += distanceInMeters/0.75;
         }
 
-        updateLocation();
+       updateLocation();
 
         return stepsTaken;
 
@@ -339,11 +335,11 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
 
     public int getTime() {
 
-        Calendar cal = Calendar.getInstance();
-        SimpleDateFormat sdf = new SimpleDateFormat("HH:");
-        Time = Integer.parseInt(sdf.format(cal.getTime()));
 
-        return Time;
+        Calendar cal = Calendar.getInstance();
+        int hourofday = cal.get(Calendar.HOUR_OF_DAY);
+        
+        return hourofday;
     }
 
 
