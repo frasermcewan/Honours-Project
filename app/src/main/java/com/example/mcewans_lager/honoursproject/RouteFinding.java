@@ -46,7 +46,7 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
 
     private GoogleMap mMap;
     private GoogleApiClient mGoogleApiClient;
-    private Location location;
+    private Location holderLocation;
     private LatLng locale;
     private Button alertButton;
     private Button markerHomeButton;
@@ -54,6 +54,14 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
     private PendingIntent mGeofencePendingIntent;
     private List mGeofenceList;
     private LatLng touchLocation;
+    private double previousLat;
+    private double previousLon;
+    private double previousAlt;
+    private double currentLat;
+    private double currentLon;
+    private double currentAlt;
+    private double distanceInMeters;
+    private int stepsTaken;
     private Marker homeMarker;
     private Marker workMarker;
     private Boolean Home = true;
@@ -88,7 +96,7 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
                 .addApi(LocationServices.API)
                 .build();
 
-
+//changes
 
         mGoogleApiClient.connect();
 
@@ -151,8 +159,8 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
                             .setRequestId("Home GeoFence")
 
                             .setCircularRegion(
-                                    location.getLatitude(),
-                                    location.getLongitude(),
+                                    touchLocation.latitude,
+                                    touchLocation.longitude,
                                     50
                             )
                             .setExpirationDuration(40000)
@@ -160,7 +168,7 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
                             .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
                                     Geofence.GEOFENCE_TRANSITION_EXIT | Geofence.GEOFENCE_TRANSITION_DWELL)
                             .build());
-                            addGeoFences();
+                    addGeoFences();
 
                 } else if (Work == true) {
 
@@ -178,8 +186,8 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
                             .setRequestId("Work GeoFence")
 
                             .setCircularRegion(
-                                    location.getLatitude(),
-                                    location.getLongitude(),
+                                    touchLocation.latitude,
+                                    touchLocation.longitude,
                                     50
                             )
                             .setExpirationDuration(40000)
@@ -187,7 +195,7 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
                             .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
                                     Geofence.GEOFENCE_TRANSITION_EXIT | Geofence.GEOFENCE_TRANSITION_DWELL)
                             .build());
-                            addGeoFences();
+                    addGeoFences();
 
                 }
 
@@ -211,16 +219,18 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
 
 
 
-        location = LocationServices.FusedLocationApi.getLastLocation(
+        holderLocation = LocationServices.FusedLocationApi.getLastLocation(
                 mGoogleApiClient);
 
 
+        previousLat = holderLocation.getLatitude();
+        previousLon = holderLocation.getLatitude();
+        previousAlt = holderLocation.getAltitude();
+
+        if (holderLocation != null) {
 
 
-        if (location != null) {
-
-
-            locale = new LatLng(location.getLatitude(), location.getLongitude());
+            locale = new LatLng(holderLocation.getLatitude(), holderLocation.getLongitude());
 
 
 
@@ -246,14 +256,50 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
 
     @Override
     public void onLocationChanged(Location location) {
+        stepsTaken = 0;
+        distanceInMeters = 0;
+        currentLon = location.getLongitude();
+        currentLat = location.getLatitude();
+        currentAlt = location.getAltitude();
+        float [] dist = new float[1];
 
+        Location.distanceBetween(previousLon,previousLat,currentLon,currentLat,dist);
+
+        distanceInMeters = Math.round( dist[0]);
+
+        calculateSteps();
 
     }
+
+
+    public int calculateSteps () {
+        if (currentAlt > previousAlt) {
+            stepsTaken += distanceInMeters / 0.80;
+
+        } else {
+            stepsTaken += distanceInMeters/0.75;
+        }
+
+        updateLocation();
+
+        return stepsTaken;
+
+    }
+
+    public void updateLocation() {
+        previousLon = currentLon;
+        previousLat = currentLon;
+        previousAlt = currentAlt;
+
+    }
+
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
 
     }
+
+
 
 
     @Override
