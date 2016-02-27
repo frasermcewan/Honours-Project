@@ -1,55 +1,38 @@
 package com.example.mcewans_lager.honoursproject;
 
-import android.app.Activity;
-import android.app.AlarmManager;
-import android.app.PendingIntent;
+import android.app.IntentService;
+import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
-import android.os.Bundle;
 import android.util.Log;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.Semaphore;
 
 /**
- * Created by mcewans_lager on 25/02/16.
+ * Created by mcewans_lager on 27/02/16.
  */
-public class MainClass extends Activity {
+public class LoggerService extends IntentService implements SensorEventListener {
 
-
-    private WifiManager.WifiLock lock;
+    private static final String TAG = "New Intent Service";
     public ArrayList<String> theList;
 
     private WifiManager mainWifi;
     private WifiReceiver receiverWifi;
-    Semaphore s;
-   boolean h = false;
-//    private ArrayList<String> wList;
 
-    private static final String TAG = "Main";
+    public LoggerService() { super(TAG);}
+    @Override
+    protected void onHandleIntent(Intent intent) {
 
-    protected void onCreate(Bundle savedInstanceState) {
-        theList = new ArrayList<String>();
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-//        startWifi();
-        startAlarm();
-
-
-
-    }
-
-
-
-
-    public void startWifi() {
-
+       SensorManager sensorManager =(SensorManager) getSystemService(SENSOR_SERVICE);
         mainWifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
         receiverWifi = new WifiReceiver();
         registerReceiver(receiverWifi, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
@@ -57,36 +40,16 @@ public class MainClass extends Activity {
 
     }
 
-
-    public void acquireLock() {
-        mainWifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
-        mainWifi.setWifiEnabled(true);
-        lock = mainWifi.createWifiLock(WifiManager.WIFI_MODE_SCAN_ONLY, "scanOnly");
-        lock.acquire();
-    }
-
-    public void startAlarm() {
-
-
-
-            Intent intent = new Intent(this, WifiHolder.class);
-
-
-            final PendingIntent pIntent = PendingIntent.getBroadcast(this, WifiHolder.REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-            long firstMillis = System.currentTimeMillis();
-            AlarmManager alarm = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
-
-
-        alarm.setInexactRepeating(AlarmManager.RTC_WAKEUP, firstMillis,
-                    AlarmManager.INTERVAL_HALF_HOUR, pIntent);
-
-
+    @Override
+    public void onSensorChanged(SensorEvent event) {
 
     }
 
-    public void releaseLock() {
-        lock.release();
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
     }
+
 
     class WifiReceiver extends BroadcastReceiver {
         ArrayList<String> holderList = new ArrayList<String>();
@@ -135,13 +98,12 @@ public class MainClass extends Activity {
 
         public void setLists() {
             theList.addAll(holderList);
-            startAlarm();
         }
 
         public ArrayList<String> getWList() {
             return holderList;
         }
     }
+
+
 }
-
-

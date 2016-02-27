@@ -30,8 +30,6 @@ public class Wifi extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.wefee);
-        Intent intent = new Intent(this, WifiIntentService.class);
-        startService(intent);
         startWifi();
 
 
@@ -41,7 +39,7 @@ public class Wifi extends Activity {
 
 
     public void startWifi () {
-        mainText = (TextView) findViewById(R.id.mainText);
+//        mainText = (TextView) findViewById(R.id.mainText);
         mainWifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
         receiverWifi = new WifiReceiver();
         registerReceiver(receiverWifi, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
@@ -96,7 +94,7 @@ public class Wifi extends Activity {
                 sb.append('\n');
                 sb.append('\n');
             }
-            mainText.setText(sb);
+//            mainText.setText(sb);
             showList();
         }
 
