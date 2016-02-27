@@ -7,6 +7,7 @@ import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -14,6 +15,8 @@ import android.view.View;
 import android.widget.Button;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationServices;
@@ -30,7 +33,7 @@ import java.util.List;
 
 
 
-public class RouteFinding extends FragmentActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener, View.OnClickListener {
+public class RouteFinding extends FragmentActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener, View.OnClickListener, ResultCallback<Status> {
 
     protected static final String TAG = "Time";
 
@@ -156,7 +159,6 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
                                     touchLocation.longitude,
                                     500
                             )
-                            .setExpirationDuration(40000)
                             .setLoiteringDelay(1000)
                             .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
                                     Geofence.GEOFENCE_TRANSITION_EXIT | Geofence.GEOFENCE_TRANSITION_DWELL)
@@ -183,7 +185,6 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
                                     touchLocation.longitude,
                                     50
                             )
-                            .setExpirationDuration(40000)
                             .setLoiteringDelay(5000)
                             .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
                                     Geofence.GEOFENCE_TRANSITION_EXIT | Geofence.GEOFENCE_TRANSITION_DWELL)
@@ -201,7 +202,11 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
 
 
     private PendingIntent getGeofencePendingIntent() {
-        Log.i(TAG, "getGeofencePendingIntent: Intent Called");
+
+        if (mGeofencePendingIntent != null) {
+            return mGeofencePendingIntent;
+        }
+
         Intent intent = new Intent(this, GeofenceTransitionsIntentService.class);
         return PendingIntent.getService(this, 0, intent, PendingIntent.
                 FLAG_UPDATE_CURRENT);
@@ -241,7 +246,7 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
 
     public void addGeoFences() {
         LocationServices.GeofencingApi.addGeofences(mGoogleApiClient, mGeofenceList,
-                getGeofencePendingIntent());
+                getGeofencePendingIntent()).setResultCallback(this);
 
     }
 
@@ -343,6 +348,10 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
     }
 
 
+    @Override
+    public void onResult(Status status) {
+
+    }
 }
 
 
