@@ -7,7 +7,6 @@ import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.Location;
-import android.os.AsyncTask;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -18,6 +17,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.Geofence;
+import com.google.android.gms.location.GeofencingApi;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -35,7 +35,9 @@ import java.util.List;
 
 public class RouteFinding extends FragmentActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener, View.OnClickListener, ResultCallback<Status> {
 
-    protected static final String TAG = "Time";
+    protected static final String TAG = "Main";
+
+
 
     private GoogleMap mMap;
     private GoogleApiClient mGoogleApiClient;
@@ -90,12 +92,8 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
                 .addApi(LocationServices.API)
                 .build();
 
-//changes
 
         mGoogleApiClient.connect();
-
-//        LocationServices.GeofencingApi.addGeofences(mGoogleApiClient, mGeofenceList,
-//                getGeofencePendingIntent());
 
 
 
@@ -245,8 +243,12 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
 
 
     public void addGeoFences() {
-        LocationServices.GeofencingApi.addGeofences(mGoogleApiClient, mGeofenceList,
-                getGeofencePendingIntent()).setResultCallback(this);
+        try {
+            LocationServices.GeofencingApi.addGeofences(mGoogleApiClient, mGeofenceList,
+                    getGeofencePendingIntent()).setResultCallback(this);
+        } catch (Exception e) {
+
+        }
 
     }
 
@@ -257,6 +259,7 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
 
     @Override
     public void onLocationChanged(Location location) {
+        Log.i(TAG, "onLocationChanged: ");
         stepsTaken = 0;
         distanceInMeters = 0;
         currentLon = location.getLongitude();

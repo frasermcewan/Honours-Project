@@ -41,10 +41,6 @@ public class GeofenceTransitionsIntentService extends IntentService {
         super(TAG);
     }
 
-    @Override
-    public void onCreate() {
-        super.onCreate();
-    }
 
     /**
      * Handles incoming intents.
