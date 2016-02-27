@@ -12,6 +12,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
+import android.os.PowerManager;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -23,14 +24,22 @@ import java.util.List;
 public class WifiIntentService extends IntentService  {
 
     private static final String TAG = "New Intent Service";
-    public ArrayList<String> theList;
+    public ArrayList<String> theList = new ArrayList<String>();
 
     private WifiManager mainWifi;
     private WifiReceiver receiverWifi;
+    PowerManager.WakeLock wakeLock;
+
+
 
     public WifiIntentService() { super(TAG);}
     @Override
     protected void onHandleIntent(Intent intent) {
+
+
+        PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
+         wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
+        wakeLock.acquire();
 
 
         mainWifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
@@ -41,7 +50,14 @@ public class WifiIntentService extends IntentService  {
     }
 
 
+ public void createFrequency () {
 
+ }
+
+  public void releaseLock() {
+      wakeLock.release();
+
+  }
 
     class WifiReceiver extends BroadcastReceiver {
         ArrayList<String> holderList = new ArrayList<String>();
@@ -54,7 +70,7 @@ public class WifiIntentService extends IntentService  {
             for (int q = 0; q < wiList.size(); q++) {
                 ScanResult result = wiList.get(q);
                 holderList.add(result.SSID);
-                Log.i(TAG, "onReceive: ");
+
             }
 
             showList();
@@ -79,6 +95,7 @@ public class WifiIntentService extends IntentService  {
 
         public void setLists() {
             theList.addAll(holderList);
+            releaseLock();
         }
 
         public ArrayList<String> getWList() {
