@@ -34,7 +34,6 @@
             android:name=".WifiHolder"
             android:process=":remote" >
         </receiver>
-        <receiver android:name=".WifiIntentService$WifiReceiver"/>
     </application>
 
 </manifest>
