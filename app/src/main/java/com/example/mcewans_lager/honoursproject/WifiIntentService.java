@@ -10,11 +10,17 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.location.Location;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
+import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.PowerManager;
 import android.util.Log;
+
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,14 +28,18 @@ import java.util.List;
 /**
  * Created by mcewans_lager on 27/02/16.
  */
-public class WifiIntentService extends IntentService {
+public class WifiIntentService extends IntentService implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     private static final String TAG = "New Intent Service";
     public ArrayList<String> theList = new ArrayList<String>();
     private WifiManager mainWifi;
     WifiReceiver receiverWifi;
     PowerManager.WakeLock wakeLock;
-    Boolean list = false;
+    private GoogleApiClient mGoogleApiClient;
+    private Location holderLocation;
+    private Double Lat;
+    private Double Lon;
+    private Double Alt;
 
 
     public WifiIntentService() {
@@ -38,6 +48,13 @@ public class WifiIntentService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
+
+
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
 
         Log.i(TAG, "onHandleIntent: ");
         PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
@@ -50,7 +67,7 @@ public class WifiIntentService extends IntentService {
         receiverWifi = new WifiReceiver();
         registerReceiver(receiverWifi, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
 
-        
+        getLocation();
         mainWifi.startScan();
 
         try {
@@ -70,6 +87,28 @@ public class WifiIntentService extends IntentService {
     public void releaseLock() {
         Log.i(TAG, "releaseLock: ");
         wakeLock.release();
+
+    }
+
+    public void getLocation() {
+        holderLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        Lat = holderLocation.getLatitude();
+        Lon = holderLocation.getLatitude();
+        Alt = holderLocation.getAltitude();
+    }
+
+    @Override
+    public void onConnected(Bundle bundle) {
+
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
 
     }
 

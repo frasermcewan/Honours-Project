@@ -29,13 +29,13 @@ public class MainClass extends Activity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        startAlarm();
+        startHourlyAlarm();
 
 
     }
 
 
-    public void startAlarm() {
+    public void startHourlyAlarm() {
 
 
         Intent intent = new Intent(this, WifiHolder.class);
@@ -49,6 +49,28 @@ public class MainClass extends Activity {
                 AlarmManager.INTERVAL_FIFTEEN_MINUTES, pIntent);
         
 
+
+    }
+
+
+    public void startDailyAlarm() {
+
+        Intent intent = new Intent(this, WifiHolder.class);
+
+
+        final PendingIntent pIntent = PendingIntent.getBroadcast(this, WifiHolder.REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        AlarmManager alarm = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
+
+
+        alarm.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(),
+                AlarmManager.INTERVAL_DAY, pIntent);
+
+    }
+
+    public void InstantScan() {
+
+        Intent intent = new Intent(this, WifiHolder.class);
+        startService(intent);
 
     }
 
