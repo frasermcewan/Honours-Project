@@ -12,6 +12,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
+import android.os.CountDownTimer;
 import android.os.PowerManager;
 import android.util.Log;
 
@@ -25,10 +26,10 @@ public class WifiIntentService extends IntentService  {
 
     private static final String TAG = "New Intent Service";
     public ArrayList<String> theList = new ArrayList<String>();
-
     private WifiManager mainWifi;
-    private WifiReceiver receiverWifi;
+     WifiReceiver receiverWifi;
     PowerManager.WakeLock wakeLock;
+    Boolean list = false;
 
 
 
@@ -36,23 +37,36 @@ public class WifiIntentService extends IntentService  {
     @Override
     protected void onHandleIntent(Intent intent) {
 
-
+        Log.i(TAG, "onHandleIntent: ");
         PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
          wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
         wakeLock.acquire();
 
 
         mainWifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
-        receiverWifi = new WifiReceiver();
-        registerReceiver(receiverWifi, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+
+            receiverWifi = new WifiReceiver();
+            registerReceiver(receiverWifi, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+
+        list = false;
         mainWifi.startScan();
+
+        try {
+            Thread.sleep(15000);
+        } catch (InterruptedException e) {
+            // Restore interrupt status.
+            Thread.currentThread().interrupt();
+        }
+
+
+        unregisterReceiver(receiverWifi);
+
+
 
     }
 
 
- public void createFrequency () {
 
- }
 
   public void releaseLock() {
       wakeLock.release();
@@ -96,6 +110,7 @@ public class WifiIntentService extends IntentService  {
         public void setLists() {
             theList.addAll(holderList);
             releaseLock();
+            list = true;
         }
 
         public ArrayList<String> getWList() {
