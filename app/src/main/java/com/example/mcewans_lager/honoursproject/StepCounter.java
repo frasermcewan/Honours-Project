@@ -30,26 +30,26 @@ public class StepCounter extends FragmentActivity implements SensorEventListener
         Intent intent = new Intent(this, StepCounterIntentService.class);
         startService(intent);
 
-        count = (TextView) findViewById(R.id.count);
-        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+//        count = (TextView) findViewById(R.id.count);
+//        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        activityRunning = true;
-        Sensor countSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
-        if(countSensor != null) {
-            sensorManager.registerListener(this, countSensor, SensorManager.SENSOR_DELAY_UI);
-        } else {
-            Toast.makeText(this, "Count sensor not available!", Toast.LENGTH_LONG).show();
-        }
+//        activityRunning = true;
+//        Sensor countSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
+//        if(countSensor != null) {
+//            sensorManager.registerListener(this, countSensor, SensorManager.SENSOR_DELAY_UI);
+//        } else {
+//            Toast.makeText(this, "Count sensor not available!", Toast.LENGTH_LONG).show();
+//        }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        activityRunning = false;
+//        activityRunning = false;
     }
 
     @Override
