@@ -8,20 +8,18 @@ public class XMLCollection {
     double temph = 0.0;
     int volume = 0;
     double windspeed = 0.0;
-    String Location = null;
     String Precip = null;
 
 
 
 
-   public void setLocation(String loc) {
-       Location = loc;
+   public void setTempLow(double Temps1) {
+       templ = Temps1;
    }
 
-   public void setTemp(double Temps1, double Temps2) {
-       templ = Temps1;
-       temph = Temps2;
-   }
+    public void setTempHigh(double Temps2) {
+        temph = Temps2;
+    }
 
     public void setVolume(int Vol) {
         volume = Vol;
@@ -36,10 +34,17 @@ public class XMLCollection {
         windspeed = w;
     }
 
+    public double getWindspeed() {
+        return windspeed;
+    }
 
+    public String getPrecip() {
+        return Precip;
+    }
 
-
-
+    public int getVol () {
+        return volume;
+    }
 
 
 }

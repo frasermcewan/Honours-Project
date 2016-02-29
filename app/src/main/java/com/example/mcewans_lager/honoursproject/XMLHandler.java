@@ -1,5 +1,7 @@
 package com.example.mcewans_lager.honoursproject;
 
+import android.util.Log;
+
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -11,9 +13,7 @@ import org.xml.sax.helpers.DefaultHandler;
  */
 public class XMLHandler extends DefaultHandler {
 
-
-    XMLCollection xcol = new XMLCollection();
-    boolean data = false;
+    protected static final String TAG = "MainThing";
     String PrepType;
     int PrepVolume;
     double WindSpeed;
@@ -21,16 +21,17 @@ public class XMLHandler extends DefaultHandler {
     double tempMin;
 
 
+
+
 public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+    Log.i(TAG, "startElement: ");
+
         if (localName.equals("precipitation")) {
             PrepType = attributes.getValue("type");
+            PrepVolume = Integer.parseInt(attributes.getValue("value"));
 
-            if (!PrepType.equals(null)) {
-                PrepVolume = Integer.parseInt(attributes.getValue("value"));
-                data = true;
-            }
         }
-        while (data == true) {
+
         if (localName.equals("windSpeed")) {
             WindSpeed = Double.parseDouble(attributes.getValue("mps"));
 
@@ -41,16 +42,38 @@ public void startElement(String uri, String localName, String qName, Attributes 
         }
 
 
-            xcol.setPrecip(PrepType);
-            xcol.setVolume(PrepVolume);
-            xcol.setWindspeed(WindSpeed);
-            xcol.setTemp(tempMin,tempMax);
-            data = false;
+//            xcol.setPrecip(PrepType);
+//            xcol.setVolume(PrepVolume);
+//            xcol.setWindspeed(WindSpeed);
+//            xcol.setTempLow(tempMin);
+//            xcol.setTempHigh(tempMax);
+
 
             }
 
+    public double getWindspeed() {
+        return WindSpeed;
+    }
+
+    public String getPrecip() {
+        return PrepType;
+    }
+
+    public int getVol () {
+        return PrepVolume;
+    }
+
+    public double getLo() {
+        return tempMin;
+    }
+
+    public double getHi () {
+        return tempMax;
+    }
+
+
 
     }
-}
+
 
 

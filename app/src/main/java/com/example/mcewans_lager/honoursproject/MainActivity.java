@@ -30,7 +30,7 @@ import javax.xml.parsers.SAXParserFactory;
  */
 public class MainActivity extends FragmentActivity {
 
-    private static String targetURL = "api.openweathermap.org/data/2.5/forecast?q=Glasgow&mode=xml&APPID=b33efea24270c8a29ff5678f3730ecb2";
+    private static String targetURL = "http://api.openweathermap.org/data/2.5/forecast?q=Glasgow&mode=xml&APPID=b33efea24270c8a29ff5678f3730ecb2";
 //    private static String APIKey = "&APPID=b33efea24270c8a29ff5678f3730ecb2";
     URL Weather;
 
