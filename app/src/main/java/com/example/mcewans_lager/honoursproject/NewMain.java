@@ -11,7 +11,7 @@ import android.util.Log;
 public class NewMain extends FragmentActivity {
 
     private static String targetURL = "http://api.openweathermap.org/data/2.5/forecast?q=Glasgow&mode=xml&APPID=b33efea24270c8a29ff5678f3730ecb2";
-   
+    private static String secondURL = "http://api.openweathermap.org/data/2.5/forecast?q=Miami&mode=xml&APPID=b33efea24270c8a29ff5678f3730ecb2";
 
 
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,8 +23,10 @@ public class NewMain extends FragmentActivity {
 
 
     public void getWeather() {
-        handleXML handle = new handleXML(targetURL);
+        handleXML handle = new handleXML(secondURL);
         handle.getXML();
+
+
 
 
 //        Log.i(TAG, "getWeather: " + handle.getPrepType());

@@ -11,21 +11,21 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 
 /**
  * Created by mcewans_lager on 29/02/16.
  */
 public class handleXML {
     private final String TAG = "Yo adrian, we did it!";
-    private String PrepType;
-    private String PrepVolume;
-    private String WindSpeed;
-    private String tempMax;
-    private String tempMin;
+    private ArrayList<String> PrepType;
+    private ArrayList<String> PrepVolume;
+    private ArrayList<String> WindSpeed;
+    private ArrayList<String> tempMax;
+    private ArrayList<String> tempMin;
     private String finalUrl;
     boolean finishParse = true;
     private XmlPullParserFactory xmlFactory;
-    private static final String ns = null;
 
 
     public handleXML(String url) {
@@ -37,33 +37,35 @@ public class handleXML {
         dXML.doInBackground();
     }
 
-    public void setPrepType(String p) { this.PrepType = p;}
+    public void setPrepType(String p) { PrepType.add(p)  ;}
 
-    public void setPrepVolume(String v) {this.PrepVolume = v;}
+    public void setPrepVolume(String v) {PrepVolume.add(v);}
 
-    public void setWindSpeed(String w) {this.WindSpeed = w;}
+    public void setWindSpeed(String w) {WindSpeed.add(w);}
 
-    public void setTempMax(String tMax) {this.tempMax = tMax;}
+    public void setTempMax(String tMax) {tempMax.add(tMax);}
 
-    public void setTempMin(String tMin) {this.tempMin = tMin;}
+    public void setTempMin(String tMin) {tempMin.add(tMin);}
 
-    public String getPrepType() {
+    public ArrayList<String> getPrepType() {
+
         return PrepType;
     }
 
-    public String getPrepVolume() {
+    public ArrayList<String> getPrepVolume() {
+
         return PrepVolume;
     }
 
-    public String getWindSpeed() {
+    public ArrayList<String> getWindSpeed() {
         return WindSpeed;
     }
 
-    public String getTempMax() {
+    public ArrayList<String> getTempMax() {
         return tempMax;
     }
 
-    public String getTempMin() {
+    public ArrayList<String> getTempMin() {
         return tempMin;
     }
 
@@ -76,15 +78,21 @@ public class handleXML {
             while (eventType != XmlPullParser.END_DOCUMENT) {
                 if (eventType == XmlPullParser.START_DOCUMENT) {
                 } else if (eventType == XmlPullParser.START_TAG && parser.getName().equals("precipitation")) {
-                    if (!parser.getAttributeValue(1).equals(null)) {
-                        PrepVolume = parser.getAttributeValue(1);
-                        PrepType = parser.getAttributeValue(2);
+                    if (parser.getAttributeCount() > 0) {
+                        Log.i(TAG, "XMLParse: " + PrepVolume);
+                        setPrepType(parser.getAttributeValue(2));
+                        setPrepVolume(parser.getAttributeValue(1));
+                    } else {
+
                     }
                 } else if (eventType == XmlPullParser.START_TAG && parser.getName().equals("windSpeed")) {
-                    WindSpeed = parser.getAttributeName(0);
+                    if (parser.getAttributeCount() > 0) {
+                        setWindSpeed(parser.getAttributeName(0));
+                    }
                 } else if (eventType == XmlPullParser.START_TAG && parser.getName().equals("temperature")) {
-                    tempMax = parser.getAttributeName(3);
-                    tempMin = parser.getAttributeValue(2);
+
+                    setTempMax(parser.getAttributeName(3));
+                    setTempMin(parser.getAttributeValue(2));
                     Log.i(TAG, "Temp Min " + tempMin);
                 }
 
