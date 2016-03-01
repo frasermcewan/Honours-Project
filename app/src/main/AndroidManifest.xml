@@ -29,7 +29,7 @@
             android:value="@string/google_maps_key" />
 
         <activity
-            android:name=".RouteFinding"
+            android:name=".TestMain"
             android:label="Project" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -15,6 +15,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
 
 /**
  * Created by mcewans_lager on 01/03/16.
@@ -25,6 +26,8 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
     private Boolean connected;
     protected static final String TAG = "Service";
     PowerManager.WakeLock wakeLock;
+    private LocationRequest mLocationRequest;
+    boolean mRequestingLocationUpdates = false;
 
 
 
@@ -35,6 +38,7 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
         PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
         wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
         wakeLock.acquire();
+
         
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
@@ -45,6 +49,13 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
 
         mGoogleApiClient.connect();
         serviceCheck();
+
+
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(10000);
+        mLocationRequest.setFastestInterval(5000);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
        
     }
 
@@ -75,12 +86,30 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
 
     @Override
     public void onConnected(Bundle bundle) {
+        if (mRequestingLocationUpdates) {
+            startLocationUpdates();
+        }
+        Location initialLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        Log.i(TAG,"Hello" + initialLocation);
 
-        Location holderLocation = LocationServices.FusedLocationApi.getLastLocation(
-                mGoogleApiClient);
-        Log.i(TAG, "onConnected: " + holderLocation);
 
     }
+
+
+
+
+    public void startLocationUpdates() {
+        LocationServices.FusedLocationApi.requestLocationUpdates(
+                mGoogleApiClient, mLocationRequest, this);
+    }
+
+    public void endLocationUpdates() {
+        LocationServices.FusedLocationApi.removeLocationUpdates(
+                mGoogleApiClient, this);
+    }
+
+
+
 
     @Override
     public void onConnectionSuspended(int i) {
@@ -89,6 +118,9 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
 
     @Override
     public void onLocationChanged(Location location) {
+        Log.i(TAG, "onLocationChanged: " + location);
+
+
 
     }
 

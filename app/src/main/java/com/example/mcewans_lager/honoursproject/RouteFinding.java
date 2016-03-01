@@ -224,8 +224,11 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
         Log.i(TAG, "onConnected: " + holderLocation);
 
         previousLat = holderLocation.getLatitude();
-        previousLon = holderLocation.getLatitude();
+        Log.i(TAG, "onConnected: " + previousLat);
+        previousLon = holderLocation.getLongitude();
+        Log.i(TAG, "onConnected: " + previousLon);
         previousAlt = holderLocation.getAltitude();
+        Log.i(TAG, "onConnected: " + previousAlt);
 
         if (holderLocation != null) {
 

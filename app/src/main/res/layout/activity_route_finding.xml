@@ -28,19 +28,19 @@ android:layout_alignParentBottom="true">
 android:text="Send Alert"
 android:layout_height="wrap_content"
 android:layout_width="wrap_content"
-android:layout_weight="1"></Button>
+android:layout_weight="1"/>
 <Button
     android:id="@+id/MarkerHomeButton"
     android:text="Add Home Marker"
 android:layout_height="wrap_content"
 android:layout_width="wrap_content"
-android:layout_weight="1"></Button>
+android:layout_weight="1"/>
     <Button
         android:id="@+id/MarkerWorkButton"
         android:text="Add Work Marker"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
-        android:layout_weight="1"></Button>
+        android:layout_weight="1"/>
     </LinearLayout>
 
 
