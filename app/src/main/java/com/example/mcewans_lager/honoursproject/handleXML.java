@@ -18,13 +18,13 @@ import java.util.ArrayList;
  */
 public class handleXML {
     private final String TAG = "Yo adrian, we did it!";
-    private ArrayList<String> PrepType;
-    private ArrayList<String> PrepVolume;
-    private ArrayList<String> WindSpeed;
-    private ArrayList<String> tempMax;
-    private ArrayList<String> tempMin;
+    private ArrayList<String> PrepType = new ArrayList<String>();
+    private ArrayList<String> PrepVolume = new ArrayList<String>();
+    private ArrayList<String> WindSpeed = new ArrayList<String>();
+    private ArrayList<String> tempMax = new ArrayList<String>();
+    private ArrayList<String> tempMin = new ArrayList<String>();
     private String finalUrl;
-    boolean finishParse = true;
+    boolean done = false;
     private XmlPullParserFactory xmlFactory;
 
 
@@ -32,10 +32,6 @@ public class handleXML {
         this.finalUrl = url;
     }
 
-    public void callAsync () {
-        DownloadXmlTask dXML = new DownloadXmlTask();
-        dXML.doInBackground();
-    }
 
     public void setPrepType(String p) { PrepType.add(p)  ;}
 
@@ -79,7 +75,6 @@ public class handleXML {
                 if (eventType == XmlPullParser.START_DOCUMENT) {
                 } else if (eventType == XmlPullParser.START_TAG && parser.getName().equals("precipitation")) {
                     if (parser.getAttributeCount() > 0) {
-                        Log.i(TAG, "XMLParse: " + PrepVolume);
                         setPrepType(parser.getAttributeValue(2));
                         setPrepVolume(parser.getAttributeValue(1));
                     } else {
@@ -87,13 +82,14 @@ public class handleXML {
                     }
                 } else if (eventType == XmlPullParser.START_TAG && parser.getName().equals("windSpeed")) {
                     if (parser.getAttributeCount() > 0) {
-                        setWindSpeed(parser.getAttributeName(0));
+                        setWindSpeed(parser.getAttributeValue(0));
                     }
                 } else if (eventType == XmlPullParser.START_TAG && parser.getName().equals("temperature")) {
+                    if (parser.getAttributeCount() > 0) {
+                        setTempMax(parser.getAttributeValue(3));
+                        setTempMin(parser.getAttributeValue(2));
+                    }
 
-                    setTempMax(parser.getAttributeName(3));
-                    setTempMin(parser.getAttributeValue(2));
-                    Log.i(TAG, "Temp Min " + tempMin);
                 }
 
                 eventType = parser.next();
@@ -160,8 +156,36 @@ public class handleXML {
                 XmlPullParser parser = xmlFactory.newPullParser();
                 parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
                 parser.setInput(in, null);
-                XMLParse(parser);
+//                XMLParse(parser);
+
+
+                int eventType = parser.getEventType();
+                while (eventType != XmlPullParser.END_DOCUMENT) {
+                    done = false;
+                    if (eventType == XmlPullParser.START_DOCUMENT) {
+                    } else if (eventType == XmlPullParser.START_TAG && parser.getName().equals("precipitation")) {
+                        if (parser.getAttributeCount() > 0) {
+                            Log.i(TAG, "Shouldnt be here: " + PrepVolume);
+                            setPrepType(parser.getAttributeValue(2));
+                            setPrepVolume(parser.getAttributeValue(1));
+                        } else {
+
+                        }
+                    } else if (eventType == XmlPullParser.START_TAG && parser.getName().equals("windSpeed")) {
+                        if (parser.getAttributeCount() > 0) {
+                            setWindSpeed(parser.getAttributeName(0));
+                        }
+                    } else if (eventType == XmlPullParser.START_TAG && parser.getName().equals("temperature")) {
+
+                        setTempMax(parser.getAttributeName(3));
+                        setTempMin(parser.getAttributeValue(2));
+                        Log.i(TAG, "Temp Min " + tempMin);
+                    }
+
+                    eventType = parser.next();
+                }
                 in.close();
+
 
             } catch (Exception e) {
                 e.printStackTrace();
