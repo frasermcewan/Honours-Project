@@ -1,7 +1,5 @@
 package com.example.mcewans_lager.honoursproject;
 
-import com.google.android.gms.maps.model.LatLng;
-
 
 
 

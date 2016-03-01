@@ -33,7 +33,7 @@ import java.util.List;
 
 
 
-public class RouteFinding extends FragmentActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener, View.OnClickListener, ResultCallback<Status> {
+public class RouteFinding extends FragmentActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener, View.OnClickListener {
 
     protected static final String TAG = "Main";
 
@@ -96,7 +96,7 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
         mGoogleApiClient.connect();
 
 
-
+// changes
     }
 
     protected void onStart(Bundle savedInstanceState) {
@@ -157,7 +157,8 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
                                     touchLocation.longitude,
                                     500
                             )
-                            .setLoiteringDelay(1000)
+                            .setLoiteringDelay(30000)
+                            .setExpirationDuration(600000)
                             .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
                                     Geofence.GEOFENCE_TRANSITION_EXIT | Geofence.GEOFENCE_TRANSITION_DWELL)
                             .build());
@@ -184,6 +185,7 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
                                     50
                             )
                             .setLoiteringDelay(5000)
+                            .setExpirationDuration(600000)
                             .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
                                     Geofence.GEOFENCE_TRANSITION_EXIT | Geofence.GEOFENCE_TRANSITION_DWELL)
                             .build());
@@ -219,6 +221,7 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
         holderLocation = LocationServices.FusedLocationApi.getLastLocation(
                 mGoogleApiClient);
 
+        Log.i(TAG, "onConnected: " + holderLocation);
 
         previousLat = holderLocation.getLatitude();
         previousLon = holderLocation.getLatitude();
@@ -243,12 +246,12 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
 
 
     public void addGeoFences() {
-        try {
-            LocationServices.GeofencingApi.addGeofences(mGoogleApiClient, mGeofenceList,
-                    getGeofencePendingIntent()).setResultCallback(this);
-        } catch (Exception e) {
 
-        }
+            LocationServices.GeofencingApi.addGeofences(mGoogleApiClient, mGeofenceList,
+                    getGeofencePendingIntent());
+
+
+
 
     }
 
@@ -351,10 +354,6 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
     }
 
 
-    @Override
-    public void onResult(Status status) {
-
-    }
 }
 
 
