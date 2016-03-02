@@ -68,8 +68,6 @@ public class MainService extends Service implements GoogleApiClient.ConnectionCa
         mLocationRequest.setInterval(10000);
         mLocationRequest.setFastestInterval(5000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-//        startAlarm();
-
 
     }
 
@@ -87,8 +85,7 @@ public class MainService extends Service implements GoogleApiClient.ConnectionCa
 
         if (!instantUpdate && !dailyUpdate) {
             Log.i(TAG, "startAlarm: Half Hour");
-            alarm.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(),
-                    AlarmManager.INTERVAL_HALF_HOUR, pIntent);
+            alarm.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), AlarmManager.INTERVAL_FIFTEEN_MINUTES, pIntent);
         } else if (dailyUpdate) {
             Log.i(TAG, "startAlarm: Day");
             alarm.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(),
@@ -231,8 +228,10 @@ public class MainService extends Service implements GoogleApiClient.ConnectionCa
                 String stepStatus = intent.getStringExtra("Status");
 
                 if(stepStatus.equals("true")) {
+                    Log.i(TAG, "StepCounter: Ended and True ");
                     stepCounter = true;
                 } else if (stepStatus.equals("false")) {
+                    Log.i(TAG, "StepCounter: Ended and False ");
                     stepCounter = false;
                 }
 

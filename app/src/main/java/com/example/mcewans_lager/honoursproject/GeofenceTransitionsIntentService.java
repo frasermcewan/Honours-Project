@@ -36,13 +36,12 @@ public class GeofenceTransitionsIntentService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        Log.i(TAG, "Service Reached");
 
         GeofencingEvent geofencingEvent = GeofencingEvent.fromIntent(intent);
 
         // Get the transition type.
         int geofenceTransition = geofencingEvent.getGeofenceTransition();
-
+        Log.i(TAG, "onHandleIntent: " + geofenceTransition);
         // Test that the reported transition was of interest.
         if (geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER ||
                 geofenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT || geofenceTransition == Geofence.GEOFENCE_TRANSITION_DWELL) {

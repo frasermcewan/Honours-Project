@@ -18,6 +18,8 @@ public class wifiHolder extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.i(TAG, "onReceive: ");
+
+
         Intent in = new Intent(context, WifiIntentService.class);
         context.startService(in);
 

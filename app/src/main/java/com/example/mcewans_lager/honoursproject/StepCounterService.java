@@ -23,7 +23,7 @@ public class StepCounterService extends Service implements SensorEventListener {
     private int steps;
     private boolean sCounter = false;
     private boolean sDetector = false;
-    PowerManager.WakeLock wakeLock;
+
 
 
 
