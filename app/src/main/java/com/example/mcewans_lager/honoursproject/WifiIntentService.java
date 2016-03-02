@@ -6,18 +6,14 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
-import android.location.Location;
+
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
-import android.os.Bundle;
-import android.os.CountDownTimer;
-import android.os.PowerManager;
-import android.util.Log;
 
+import android.os.IBinder;
+import android.os.PowerManager;
+import android.support.annotation.Nullable;
+import android.util.Log;
 
 
 import java.util.ArrayList;
@@ -26,58 +22,53 @@ import java.util.List;
 /**
  * Created by mcewans_lager on 27/02/16.
  */
-public class WifiIntentService extends IntentService  {
+public class WifiIntentService extends Service {
 
     private static final String TAG = "New Intent Service";
     public ArrayList<String> theList = new ArrayList<String>();
     private WifiManager mainWifi;
     WifiReceiver receiverWifi;
-    PowerManager.WakeLock wakeLock;
 
-
-
-    public WifiIntentService() {
-        super(TAG);
-    }
 
     @Override
-    protected void onHandleIntent(Intent intent) {
-
-
-
-
-        Log.i(TAG, "onHandleIntent: ");
-        PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
-        wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
-        wakeLock.acquire();
-
+    public void onCreate() {
 
         mainWifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
 
         receiverWifi = new WifiReceiver();
         registerReceiver(receiverWifi, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
-//        getLocation();
         mainWifi.startScan();
 
-        try {
-            Thread.sleep(15000);
-        } catch (InterruptedException e) {
-            // Restore interrupt status.
-            Thread.currentThread().interrupt();
-        }
 
+    }
 
+    @Override
+    public void onDestroy() {
         unregisterReceiver(receiverWifi);
+        super.onDestroy();
+    }
 
+
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
+    }
+
+
+
+    public void sendIntent() {
+        Log.i(TAG, "sendIntent: ");
+        Intent l = new Intent(this, MainClass.InfoReceiver.class);
+        l.putExtra("Action","Wifi");
+        l.putExtra("list", new Wrapper(theList));
+        sendBroadcast(l);
+        theList.clear();
+        onDestroy();
 
     }
 
 
-    public void releaseLock() {
-        Log.i(TAG, "releaseLock: ");
-        wakeLock.release();
-
-    }
 
 
     class WifiReceiver extends BroadcastReceiver {
@@ -94,46 +85,18 @@ public class WifiIntentService extends IntentService  {
 
             }
 
-            showList();
-            getListSize();
             setLists();
 
         }
 
 
-        public void showList() {
-            for (int i = 0; i < holderList.size(); i++) {
-                Log.i(holderList.get(i), "This is wifi number " + (i + 1));
-            }
-
-        }
-
-
-        public void getListSize() {
-            Log.i(TAG, "Items " + holderList.size());
-
-        }
-
         public void setLists() {
             theList.addAll(holderList);
-            sendToReceiver();
-            releaseLock();
+            sendIntent();
         }
 
-        public ArrayList<String> getWList() {
-            return holderList;
-        }
     }
 
 
-    public void sendToReceiver() {
-        Log.i(TAG, "sendToReceiver: ");
-        Intent l = new Intent (this, MainClass.InfoReceiver.class);
-        l.putExtra("Action","Main");
-        l.putExtra("list", new Wrapper(theList));
-        sendBroadcast(l);
-
-
-    }
 
 }
