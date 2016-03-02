@@ -14,7 +14,7 @@ public class Wrapper implements Serializable {
         this.locations = wList;
     }
 
-    public ArrayList<String> getLocations() {
+    public ArrayList<String> getNames() {
         return this.locations;
     }
 }

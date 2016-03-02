@@ -28,18 +28,14 @@ import java.util.List;
 /**
  * Created by mcewans_lager on 27/02/16.
  */
-public class WifiIntentService extends IntentService implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public class WifiIntentService extends IntentService  {
 
     private static final String TAG = "New Intent Service";
     public ArrayList<String> theList = new ArrayList<String>();
     private WifiManager mainWifi;
     WifiReceiver receiverWifi;
     PowerManager.WakeLock wakeLock;
-    private GoogleApiClient mGoogleApiClient;
-    private Location holderLocation;
-    private Double Lat;
-    private Double Lon;
-    private Double Alt;
+
 
 
     public WifiIntentService() {
@@ -50,11 +46,7 @@ public class WifiIntentService extends IntentService implements GoogleApiClient.
     protected void onHandleIntent(Intent intent) {
 
 
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(LocationServices.API)
-                .build();
+
 
         Log.i(TAG, "onHandleIntent: ");
         PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
@@ -66,8 +58,7 @@ public class WifiIntentService extends IntentService implements GoogleApiClient.
 
         receiverWifi = new WifiReceiver();
         registerReceiver(receiverWifi, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
-
-        getLocation();
+//        getLocation();
         mainWifi.startScan();
 
         try {
@@ -90,27 +81,6 @@ public class WifiIntentService extends IntentService implements GoogleApiClient.
 
     }
 
-    public void getLocation() {
-        holderLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-        Lat = holderLocation.getLatitude();
-        Lon = holderLocation.getLatitude();
-        Alt = holderLocation.getAltitude();
-    }
-
-    @Override
-    public void onConnected(Bundle bundle) {
-
-    }
-
-    @Override
-    public void onConnectionSuspended(int i) {
-
-    }
-
-    @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {
-
-    }
 
     class WifiReceiver extends BroadcastReceiver {
         ArrayList<String> holderList = new ArrayList<String>();
@@ -148,6 +118,7 @@ public class WifiIntentService extends IntentService implements GoogleApiClient.
 
         public void setLists() {
             theList.addAll(holderList);
+            sendToReceiver();
             releaseLock();
         }
 
@@ -156,5 +127,14 @@ public class WifiIntentService extends IntentService implements GoogleApiClient.
         }
     }
 
+
+    public void sendToReceiver() {
+        Log.i(TAG, "sendToReceiver: ");
+        Intent l = new Intent (this, MainClass.InfoReceiver.class);
+        l.putExtra("list", new Wrapper(theList));
+        sendBroadcast(l);
+
+
+    }
 
 }

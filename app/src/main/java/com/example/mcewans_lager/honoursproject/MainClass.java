@@ -24,12 +24,14 @@ public class MainClass extends Activity {
 
 
     private static final String TAG = "Main";
+    static ArrayList<String> wiList = new ArrayList<String>();
 
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         startHourlyAlarm();
+        InfoReceiver r = new InfoReceiver();
 
 
     }
@@ -72,6 +74,24 @@ public class MainClass extends Activity {
         Intent intent = new Intent(this, WifiHolder.class);
         startService(intent);
 
+    }
+
+  public static class InfoReceiver extends BroadcastReceiver {
+        @Override
+
+
+
+        public void onReceive(Context context, Intent intent) {
+
+//            Bundle extras = intent.getExtras();
+//            String holder = extras.getString("value");
+
+            Wrapper w = (Wrapper) intent.getSerializableExtra("list");
+            wiList = w.getNames();
+            Log.i(TAG, "onReceiveMain: " + wiList);
+
+
+        }
     }
 
 
