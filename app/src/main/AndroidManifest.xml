@@ -42,13 +42,11 @@
         <service android:name=".MainService"/>
         <receiver android:name=".MainService$InfoReceiver"
                 android:process="remote" >
-
         </receiver>
 
         <receiver android:name=".wifiHolder"
 
                 android:process="remote" >
-
 
         </receiver>
 

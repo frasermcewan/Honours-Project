@@ -1,5 +1,7 @@
 package com.example.mcewans_lager.honoursproject;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -32,6 +34,7 @@ public class MainService extends Service implements GoogleApiClient.ConnectionCa
     private LocationRequest mLocationRequest;
     boolean mRequestingLocationUpdates = false;
     static ArrayList<String> wiList = new ArrayList<String>();
+    boolean instantUpdate = false;
 
 
 
@@ -66,6 +69,44 @@ public class MainService extends Service implements GoogleApiClient.ConnectionCa
 
 
 
+    public void startHourlyAlarm() {
+
+
+        Intent intent = new Intent(this, wifiHolder.class);
+
+
+        final PendingIntent pIntent = PendingIntent.getBroadcast(this, wifiHolder.REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        AlarmManager alarm = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
+
+
+        alarm.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(),
+                AlarmManager.INTERVAL_FIFTEEN_MINUTES, pIntent);
+
+
+
+    }
+
+
+    public void startDailyAlarm() {
+
+        Intent intent = new Intent(this, wifiHolder.class);
+
+
+        final PendingIntent pIntent = PendingIntent.getBroadcast(this, wifiHolder.REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        AlarmManager alarm = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
+
+
+        alarm.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(),
+                AlarmManager.INTERVAL_DAY, pIntent);
+
+    }
+
+    public void InstantScan() {
+
+        Intent intent = new Intent(this, wifiHolder.class);
+        sendBroadcast(intent);
+
+    }
 
 
     public void serviceCheck() {
@@ -137,17 +178,20 @@ public class MainService extends Service implements GoogleApiClient.ConnectionCa
 
     }
 
-    public static class InfoReceiver extends BroadcastReceiver {
+    public class InfoReceiver extends BroadcastReceiver {
         @Override
 
         public void onReceive(Context context, Intent intent) {
 
 
-                if(intent.getAction().equals("Wifi")) {
-                    ArrayListWrapper w = (ArrayListWrapper) intent.getSerializableExtra("list");
-                    wiList = w.getNames();
-                }
+            String ActionName = intent.getStringExtra("Action");
 
+            if(ActionName.equals("Wifi")) {
+                ArrayListWrapper w = (ArrayListWrapper) intent.getSerializableExtra("list");
+                wiList = w.getNames();
+            } else if (ActionName.equals("Main")) {
+                InstantScan();
+            }
 
             
 
