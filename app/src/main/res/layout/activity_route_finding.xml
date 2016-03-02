@@ -24,23 +24,29 @@ android:layout_height="wrap_content"
 android:layout_weight="1"
 android:layout_alignParentBottom="true">
 
-<Button android:id="@+id/AlertButton"
-android:text="Send Alert"
+<Button android:id="@+id/CreateSigniture"
+android:text="Create a Signiture"
 android:layout_height="wrap_content"
 android:layout_width="wrap_content"
-android:layout_weight="1"></Button>
+android:layout_weight="1">
+
+</Button>
 <Button
     android:id="@+id/MarkerHomeButton"
     android:text="Add Home Marker"
 android:layout_height="wrap_content"
 android:layout_width="wrap_content"
-android:layout_weight="1"></Button>
+android:layout_weight="1">
+
+</Button>
     <Button
         android:id="@+id/MarkerWorkButton"
         android:text="Add Work Marker"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
-        android:layout_weight="1"></Button>
+        android:layout_weight="1">
+
+    </Button>
     </LinearLayout>
 
 

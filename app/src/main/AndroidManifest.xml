@@ -9,11 +9,12 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <!--
-     The ACCESS_COARSE/FINE_LOCATION permissions are not required to use
-             Google Maps Android API v2, but are recommended.
-        -->
+ The ACCESS_COARSE/FINE_LOCATION permissions are not required to use
+         Google Maps Android API v2, but are recommended.
+    -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
 
     <application
         android:allowBackup="true"
@@ -27,9 +28,32 @@
             android:name="com.google.android.maps.v2.API_KEY"
             android:value="@string/google_maps_key" />
 
-        <!--<activity android:name=".RouteFinding"-->
-            <!--android:label="Project"/>-->
-        <!-- -->
+        <activity
+            android:name=".RouteFinding"
+            android:label="Project" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <service android:name=".GeofenceTransitionsIntentService"/>
+        <service android:name=".MainService"/>
+        <receiver android:name=".MainService$InfoReceiver"
+                android:process="remote" >
+
+        </receiver>
+
+        <receiver android:name=".wifiHolder"
+
+                android:process="remote" >
+
+
+        </receiver>
+
+
+
     </application>
 
 </manifest>
