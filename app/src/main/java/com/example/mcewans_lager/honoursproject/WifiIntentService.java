@@ -18,9 +18,7 @@ import android.os.CountDownTimer;
 import android.os.PowerManager;
 import android.util.Log;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationServices;
+
 
 import java.util.ArrayList;
 import java.util.List;

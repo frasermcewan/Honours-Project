@@ -31,7 +31,6 @@ public class MainClass extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         startHourlyAlarm();
-//        InfoReceiver r = new InfoReceiver();
 
 
     }
@@ -48,7 +47,7 @@ public class MainClass extends Activity {
 
 
         alarm.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(),
-                AlarmManager.INTERVAL_FIFTEEN_MINUTES, pIntent);
+                AlarmManager.INTERVAL_HOUR, pIntent);
         
 
 
