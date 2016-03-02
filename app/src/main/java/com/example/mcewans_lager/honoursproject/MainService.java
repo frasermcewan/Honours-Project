@@ -34,7 +34,13 @@ public class MainService extends Service implements GoogleApiClient.ConnectionCa
     private LocationRequest mLocationRequest;
     boolean mRequestingLocationUpdates = false;
     static ArrayList<String> wiList = new ArrayList<String>();
-    boolean instantUpdate = false;
+    static boolean instantUpdate = false;
+    static boolean dailyUpdate = false;
+    static boolean stepCounter = false;
+    private int stepsTaken = 0;
+    private int distanceInMeters= 0;
+    Location initialLocation;
+
 
 
 
@@ -46,6 +52,9 @@ public class MainService extends Service implements GoogleApiClient.ConnectionCa
         PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
         wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
         wakeLock.acquire();
+
+        Intent startStepCounter = new Intent (this,StepCounterService.class);
+        startService(startStepCounter);
 
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -63,13 +72,14 @@ public class MainService extends Service implements GoogleApiClient.ConnectionCa
         mLocationRequest.setInterval(10000);
         mLocationRequest.setFastestInterval(5000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        startAlarm();
 
 
     }
 
 
 
-    public void startHourlyAlarm() {
+    public void startAlarm() {
 
 
         Intent intent = new Intent(this, wifiHolder.class);
@@ -79,34 +89,25 @@ public class MainService extends Service implements GoogleApiClient.ConnectionCa
         AlarmManager alarm = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
 
 
-        alarm.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(),
-                AlarmManager.INTERVAL_FIFTEEN_MINUTES, pIntent);
+        if (!instantUpdate && !dailyUpdate) {
+
+            alarm.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(),
+                    AlarmManager.INTERVAL_HALF_HOUR, pIntent);
+        } else if (dailyUpdate) {
+            alarm.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(),
+                    AlarmManager.INTERVAL_DAY, pIntent);
+        } else if (instantUpdate) {
+            Intent l = new Intent(this, wifiHolder.class);
+            sendBroadcast(l);
+        }
 
 
 
-    }
-
-
-    public void startDailyAlarm() {
-
-        Intent intent = new Intent(this, wifiHolder.class);
-
-
-        final PendingIntent pIntent = PendingIntent.getBroadcast(this, wifiHolder.REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        AlarmManager alarm = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
-
-
-        alarm.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(),
-                AlarmManager.INTERVAL_DAY, pIntent);
 
     }
 
-    public void InstantScan() {
 
-        Intent intent = new Intent(this, wifiHolder.class);
-        sendBroadcast(intent);
 
-    }
 
 
     public void serviceCheck() {
@@ -138,9 +139,7 @@ public class MainService extends Service implements GoogleApiClient.ConnectionCa
         if (mRequestingLocationUpdates) {
             startLocationUpdates();
         }
-        Location initialLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-        Log.i(TAG,"Hello" + initialLocation);
-
+         initialLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
 
     }
 
@@ -167,7 +166,26 @@ public class MainService extends Service implements GoogleApiClient.ConnectionCa
 
     @Override
     public void onLocationChanged(Location location) {
-        Log.i(TAG, "onLocationChanged: " + location);
+       if (!stepCounter){
+           stepsTaken = 0;
+           distanceInMeters = 0;
+           float [] dist = new float[1];
+
+           Location.distanceBetween(initialLocation.getLatitude(),initialLocation.getLongitude(),location.getLatitude(),location.getLongitude(),dist);
+
+           distanceInMeters = Math.round( dist[0]);
+
+            if (location.getAltitude() > initialLocation.getAltitude()) {
+                stepsTaken += (int) (distanceInMeters/0.80);
+            } else {
+                stepsTaken += (int) (distanceInMeters/0.75);
+            }
+
+           initialLocation.setLatitude(location.getLatitude());
+           initialLocation.setLongitude(location.getLongitude());
+           initialLocation.setAltitude(location.getAltitude());
+
+       }
 
 
 
@@ -189,8 +207,27 @@ public class MainService extends Service implements GoogleApiClient.ConnectionCa
             if(ActionName.equals("Wifi")) {
                 ArrayListWrapper w = (ArrayListWrapper) intent.getSerializableExtra("list");
                 wiList = w.getNames();
+
+                if (instantUpdate) {
+                    //Write to database
+                }
+                instantUpdate = false;
+
             } else if (ActionName.equals("Main")) {
-                InstantScan();
+                instantUpdate = true;
+            } else if (ActionName.equals("Step")){
+
+                String stepStatus = intent.getStringExtra("Status");
+
+                if(stepStatus.equals("true")) {
+                    stepCounter = true;
+                } else if (stepStatus.equals("false")) {
+                    stepCounter = false;
+                }
+
+
+            } else if (ActionName.equals("StepsTaken")) {
+                stepsTaken = intent.getIntExtra("StepCount", 0);
             }
 
             
