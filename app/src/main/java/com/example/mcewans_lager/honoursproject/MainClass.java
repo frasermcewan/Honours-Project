@@ -31,7 +31,7 @@ public class MainClass extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         startHourlyAlarm();
-        InfoReceiver r = new InfoReceiver();
+//        InfoReceiver r = new InfoReceiver();
 
 
     }
@@ -83,13 +83,16 @@ public class MainClass extends Activity {
 
         public void onReceive(Context context, Intent intent) {
 
-//            Bundle extras = intent.getExtras();
-//            String holder = extras.getString("value");
+                String ActionName = intent.getStringExtra("Action");
 
-            Wrapper w = (Wrapper) intent.getSerializableExtra("list");
-            wiList = w.getNames();
-            Log.i(TAG, "onReceiveMain: " + wiList);
-
+            if(ActionName.equals("Wifi")) {
+                Log.i(TAG, "onReceiveMain: In Action");
+                Wrapper w = (Wrapper) intent.getSerializableExtra("list");
+                wiList = w.getNames();
+                Log.i(TAG, "onReceiveMain: " + wiList);
+            } else if (ActionName.equals("Main")) {
+                Log.i(TAG, "onReceive: Should be here");
+            }
 
         }
     }

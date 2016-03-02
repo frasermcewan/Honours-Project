@@ -131,6 +131,7 @@ public class WifiIntentService extends IntentService  {
     public void sendToReceiver() {
         Log.i(TAG, "sendToReceiver: ");
         Intent l = new Intent (this, MainClass.InfoReceiver.class);
+        l.putExtra("Action","Main");
         l.putExtra("list", new Wrapper(theList));
         sendBroadcast(l);
 
