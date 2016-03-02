@@ -1,6 +1,8 @@
 package com.example.mcewans_lager.honoursproject;
 
 import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
@@ -28,13 +30,16 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
     PowerManager.WakeLock wakeLock;
     private LocationRequest mLocationRequest;
     boolean mRequestingLocationUpdates = false;
+    private double distanceInMeters = 0;
+    private int stepsTaken = 0;
+    Location initialLocation;
 
 
 
     @Override
     public void onCreate() {
         super.onCreate();
-        
+
         PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
         wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
         wakeLock.acquire();
@@ -86,10 +91,8 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
 
     @Override
     public void onConnected(Bundle bundle) {
-        if (mRequestingLocationUpdates) {
-            startLocationUpdates();
-        }
-        Location initialLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        startLocationUpdates();
+        initialLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         Log.i(TAG,"Hello" + initialLocation);
 
 
@@ -99,6 +102,7 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
 
 
     public void startLocationUpdates() {
+        Log.i(TAG, "startLocationUpdates: ");
         LocationServices.FusedLocationApi.requestLocationUpdates(
                 mGoogleApiClient, mLocationRequest, this);
     }
@@ -118,14 +122,41 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
 
     @Override
     public void onLocationChanged(Location location) {
-        Log.i(TAG, "onLocationChanged: " + location);
+        int holderSteps = 0;
 
 
+        double previousLon = initialLocation.getLongitude();
+        double previousLat = initialLocation.getLatitude();
+        double previousAlt = initialLocation.getAltitude();
+
+       double currentLon = location.getLongitude();
+       double currentLat = location.getLatitude();
+       double currentAlt = location.getAltitude();
+        float [] dist = new float[1];
+
+        Location.distanceBetween(previousLon,previousLat,currentLon,currentLat,dist);
+
+        distanceInMeters = Math.round( dist[0]);
+
+        if (currentAlt > previousAlt) {
+            holderSteps = holderSteps + (int) (distanceInMeters/0.80);
+
+        } else {
+            holderSteps =  holderSteps + (int) (distanceInMeters/0.75);
+        }
+
+        stepsTaken = stepsTaken + holderSteps;
+
+
+        initialLocation = location;
+        Log.i(TAG, "onLocationChanged: " + stepsTaken);
 
     }
+
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
 
     }
+
 }

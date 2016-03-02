@@ -32,24 +32,16 @@ public class GeofenceTransitionsIntentService extends IntentService {
 
     protected static final String TAG = "GeofenceTransitions";
 
-    /**
-     * This constructor is required, and calls the super IntentService(String)
-     * constructor with the name for a worker thread.
-     */
+
     public GeofenceTransitionsIntentService() {
         // Use the TAG to name the worker thread.
         super(TAG);
     }
 
 
-    /**
-     * Handles incoming intents.
-     * @param intent sent by Location Services. This Intent is provided to Location
-     *               Services (inside a PendingIntent) when addGeofences() is called.
-     */
+
     @Override
     protected void onHandleIntent(Intent intent) {
-        Log.i(TAG, "Service Reached");
 
         GeofencingEvent geofencingEvent = GeofencingEvent.fromIntent(intent);
 
@@ -72,18 +64,11 @@ public class GeofenceTransitionsIntentService extends IntentService {
 
             // Send notification and log the transition details.
             sendNotification(geofenceTransitionDetails);
-            Log.i(TAG, geofenceTransitionDetails);
+
         }
     }
 
-    /**
-     * Gets transition details and returns them as a formatted string.
-     *
-     * @param context               The app context.
-     * @param geofenceTransition    The ID of the geofence transition.
-     * @param triggeringGeofences   The geofence(s) triggered.
-     * @return                      The transition details formatted as String.
-     */
+
     private String getGeofenceTransitionDetails(
             Context context,
             int geofenceTransition,
@@ -144,22 +129,17 @@ public class GeofenceTransitionsIntentService extends IntentService {
         mNotificationManager.notify(0, builder.build());
     }
 
-    /**
-     * Maps geofence transition types to their human-readable equivalents.
-     *
-     * @param transitionType    A transition type constant defined in Geofence
-     * @return                  A String indicating the type of transition
-     */
+
     private String getTransitionString(int transitionType) {
         switch (transitionType) {
             case Geofence.GEOFENCE_TRANSITION_ENTER:
-                return "Enter";
+                return "You have entered a registered Geofence";
             case Geofence.GEOFENCE_TRANSITION_EXIT:
-                return "Exit";
+                return "You have exited a registered Geofence";
             case Geofence.GEOFENCE_TRANSITION_DWELL:
-                return "Dwell";
+                return "You have been in a Geofence too long";
             default:
-                return "Unknown";
+                return "Unknown transistion";
         }
     }
 }
