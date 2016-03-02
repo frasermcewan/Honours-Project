@@ -32,12 +32,11 @@ public class MainService extends Service implements GoogleApiClient.ConnectionCa
     protected static final String TAG = "Service";
     PowerManager.WakeLock wakeLock;
     private LocationRequest mLocationRequest;
-    boolean mRequestingLocationUpdates = false;
     static ArrayList<String> wiList = new ArrayList<String>();
     static boolean instantUpdate = false;
     static boolean dailyUpdate = false;
     static boolean stepCounter = false;
-    private int stepsTaken = 0;
+    private static int stepsTaken = 0;
     private int distanceInMeters= 0;
     Location initialLocation;
 
@@ -48,13 +47,10 @@ public class MainService extends Service implements GoogleApiClient.ConnectionCa
     @Override
     public void onCreate() {
         super.onCreate();
-
+        Log.i(TAG, "onCreate: ");
         PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
         wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
         wakeLock.acquire();
-
-        Intent startStepCounter = new Intent (this,StepCounterService.class);
-        startService(startStepCounter);
 
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -72,7 +68,7 @@ public class MainService extends Service implements GoogleApiClient.ConnectionCa
         mLocationRequest.setInterval(10000);
         mLocationRequest.setFastestInterval(5000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        startAlarm();
+//        startAlarm();
 
 
     }
@@ -90,13 +86,15 @@ public class MainService extends Service implements GoogleApiClient.ConnectionCa
 
 
         if (!instantUpdate && !dailyUpdate) {
-
+            Log.i(TAG, "startAlarm: Half Hour");
             alarm.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(),
                     AlarmManager.INTERVAL_HALF_HOUR, pIntent);
         } else if (dailyUpdate) {
+            Log.i(TAG, "startAlarm: Day");
             alarm.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(),
                     AlarmManager.INTERVAL_DAY, pIntent);
         } else if (instantUpdate) {
+            Log.i(TAG, "startAlarm: Instant");
             Intent l = new Intent(this, wifiHolder.class);
             sendBroadcast(l);
         }
@@ -124,6 +122,11 @@ public class MainService extends Service implements GoogleApiClient.ConnectionCa
 
     @Override
     public int onStartCommand (Intent intent, int flags, int startId){
+        Intent startStepCounter = new Intent (this,StepCounterService.class);
+        startService(startStepCounter);
+
+        startAlarm();
+
         return START_STICKY;
     }
 
@@ -136,9 +139,9 @@ public class MainService extends Service implements GoogleApiClient.ConnectionCa
 
     @Override
     public void onConnected(Bundle bundle) {
-        if (mRequestingLocationUpdates) {
+
             startLocationUpdates();
-        }
+
          initialLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
 
     }
@@ -166,29 +169,35 @@ public class MainService extends Service implements GoogleApiClient.ConnectionCa
 
     @Override
     public void onLocationChanged(Location location) {
-       if (!stepCounter){
-           stepsTaken = 0;
-           distanceInMeters = 0;
-           float [] dist = new float[1];
+        if (!stepCounter) {
+            int holderSteps = 0;
 
-           Location.distanceBetween(initialLocation.getLatitude(),initialLocation.getLongitude(),location.getLatitude(),location.getLongitude(),dist);
+            double previousLon = initialLocation.getLongitude();
+            double previousLat = initialLocation.getLatitude();
+            double previousAlt = initialLocation.getAltitude();
 
-           distanceInMeters = Math.round( dist[0]);
+            double currentLon = location.getLongitude();
+            double currentLat = location.getLatitude();
+            double currentAlt = location.getAltitude();
+            float[] dist = new float[1];
 
-            if (location.getAltitude() > initialLocation.getAltitude()) {
-                stepsTaken += (int) (distanceInMeters/0.80);
+            Location.distanceBetween(previousLon, previousLat, currentLon, currentLat, dist);
+
+            distanceInMeters = Math.round(dist[0]);
+
+            if (currentAlt > previousAlt) {
+                holderSteps = holderSteps + (int) (distanceInMeters / 0.80);
+
             } else {
-                stepsTaken += (int) (distanceInMeters/0.75);
+                holderSteps = holderSteps + (int) (distanceInMeters / 0.75);
             }
 
-           initialLocation.setLatitude(location.getLatitude());
-           initialLocation.setLongitude(location.getLongitude());
-           initialLocation.setAltitude(location.getAltitude());
-
-       }
+            stepsTaken = stepsTaken + holderSteps;
 
 
+            initialLocation = location;
 
+        }
     }
 
     @Override
@@ -196,7 +205,7 @@ public class MainService extends Service implements GoogleApiClient.ConnectionCa
 
     }
 
-    public class InfoReceiver extends BroadcastReceiver {
+    public static class InfoReceiver extends BroadcastReceiver {
         @Override
 
         public void onReceive(Context context, Intent intent) {
@@ -205,13 +214,15 @@ public class MainService extends Service implements GoogleApiClient.ConnectionCa
             String ActionName = intent.getStringExtra("Action");
 
             if(ActionName.equals("Wifi")) {
+                Log.i(TAG, "onReceiveMain: ");
                 ArrayListWrapper w = (ArrayListWrapper) intent.getSerializableExtra("list");
                 wiList = w.getNames();
+                Log.i(TAG, "onReceiveMain: " + wiList);
 
-                if (instantUpdate) {
-                    //Write to database
-                }
-                instantUpdate = false;
+//                if (instantUpdate) {
+//                    //Write to database
+//                }
+//                instantUpdate = false;
 
             } else if (ActionName.equals("Main")) {
                 instantUpdate = true;

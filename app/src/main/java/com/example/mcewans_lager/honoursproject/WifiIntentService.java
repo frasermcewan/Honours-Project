@@ -26,8 +26,6 @@ public class WifiIntentService extends IntentService {
     public ArrayList<String> theList = new ArrayList<String>();
     private WifiManager mainWifi;
     WifiReceiver receiverWifi;
-    PowerManager.WakeLock wakeLock;
-
 
     public WifiIntentService() {
         super(TAG);
@@ -38,10 +36,6 @@ public class WifiIntentService extends IntentService {
 
 
         Log.i(TAG, "onHandleIntent: ");
-        PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
-        wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
-        wakeLock.acquire();
-
 
         mainWifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
 
@@ -50,7 +44,7 @@ public class WifiIntentService extends IntentService {
         mainWifi.startScan();
 
         try {
-            Thread.sleep(15000);
+            Thread.sleep(5000);
         } catch (InterruptedException e) {
             // Restore interrupt status.
             Thread.currentThread().interrupt();
@@ -62,12 +56,17 @@ public class WifiIntentService extends IntentService {
 
     }
 
-
-    public void releaseLock() {
-        Log.i(TAG, "releaseLock: ");
-        wakeLock.release();
+    public void sendIntent() {
+        Log.i(TAG, "sendIntent: ");
+        Intent l = new Intent(this, MainService.InfoReceiver.class);
+        l.putExtra("Action","Wifi");
+        l.putExtra("list", new ArrayListWrapper(theList));
+        sendBroadcast(l);
+        theList.clear();
 
     }
+
+
 
 
     class WifiReceiver extends BroadcastReceiver {
@@ -84,35 +83,17 @@ public class WifiIntentService extends IntentService {
 
             }
 
-            showList();
-            getListSize();
             setLists();
 
         }
 
 
-        public void showList() {
-            for (int i = 0; i < holderList.size(); i++) {
-                Log.i(holderList.get(i), "This is wifi number " + (i + 1));
-            }
-
-        }
-
-
-        public void getListSize() {
-            Log.i(TAG, "Items " + holderList.size());
-
-        }
-
         public void setLists() {
             theList.addAll(holderList);
-            sendToReceiver();
-            releaseLock();
+            sendIntent();
+//            sendToReceiver();
         }
 
-        public ArrayList<String> getWList() {
-            return holderList;
-        }
     }
 
 
@@ -121,6 +102,7 @@ public class WifiIntentService extends IntentService {
         l.putExtra("Action","Wifi");
         l.putExtra("list", new ArrayListWrapper(theList));
         sendBroadcast(l);
+        theList.clear();
 
     }
 
