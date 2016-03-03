@@ -162,7 +162,7 @@ public class MainService extends Service  {
 
     private void getGPS() {
         if(connected) {
-            Log.i(TAG, "getGPS: This was called");
+            Log.i(TAG, "getGPS: ");
             Intent getGPS = new Intent(this, LocationService.class);
             getGPS.putExtra("Action", "GPS");
             startService(getGPS);
