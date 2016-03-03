@@ -1,21 +1,19 @@
 package com.example.mcewans_lager.honoursproject;
 
 
-import android.app.AlertDialog;
+
 import android.app.PendingIntent;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.Location;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.Geofence;
-import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.GeofenceStatusCodes;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -24,7 +22,6 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -101,6 +98,10 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
         setUpMapIfNeeded();
     }
 
+    @Override
+    protected  void onDestroy() {
+        super.onDestroy();
+    }
 
     private void setUpMapIfNeeded() {
         if (mMap == null) {
@@ -142,7 +143,7 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
                                     500
                             )
                             .setLoiteringDelay(30000)
-                            .setExpirationDuration(600000)
+                            .setExpirationDuration(Geofence.NEVER_EXPIRE)
                             .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
                                     Geofence.GEOFENCE_TRANSITION_EXIT | Geofence.GEOFENCE_TRANSITION_DWELL)
                             .build());
@@ -169,7 +170,7 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
                                     50
                             )
                             .setLoiteringDelay(5000)
-                            .setExpirationDuration(600000)
+                            .setExpirationDuration(Geofence.NEVER_EXPIRE)
                             .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
                                     Geofence.GEOFENCE_TRANSITION_EXIT | Geofence.GEOFENCE_TRANSITION_DWELL)
                             .build());
