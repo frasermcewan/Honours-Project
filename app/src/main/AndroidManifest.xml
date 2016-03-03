@@ -40,6 +40,9 @@
         <service android:name=".StepCounterService"/>
         <service android:name=".LocationService"/>
         <service android:name=".sendNotificationService"/>
+        <service android:name=".weatherIntentService"/>
+
+
         <receiver
             android:name=".wifiHolder"
             android:process=":remote" >

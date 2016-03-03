@@ -8,13 +8,13 @@ import java.util.ArrayList;
  */
 public class ArrayListWrapper implements Serializable {
 
-    private ArrayList<String> locations;
+    private ArrayList<String> items;
 
     public ArrayListWrapper(ArrayList<String> wList) {
-        this.locations = wList;
+        this.items = wList;
     }
 
-    public ArrayList<String> getNames() {
-        return this.locations;
+    public ArrayList<String> getItems() {
+        return this.items;
     }
 }

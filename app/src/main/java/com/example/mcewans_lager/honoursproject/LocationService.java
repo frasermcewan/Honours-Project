@@ -24,7 +24,7 @@ import com.google.android.gms.location.LocationServices;
 public class LocationService extends Service implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
     private GoogleApiClient mGoogleApiClient;
-    private Boolean connected;
+    private Boolean connected = false;
     protected static final String TAG = "GPSService";
     PowerManager.WakeLock wakeLock;
     private LocationRequest mLocationRequest;
@@ -54,8 +54,8 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
 
 
         mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(10000);
-        mLocationRequest.setFastestInterval(5000);
+        mLocationRequest.setInterval(20000);
+        mLocationRequest.setFastestInterval(10000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
 
@@ -84,6 +84,7 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
             sendSteps = 50;
         } else if (ActionName.equals("GPS")) {
             getLocation();
+
         }
 
         return START_STICKY;
@@ -99,6 +100,8 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
     @Override
     public void onConnected(Bundle bundle) {
         startLocationUpdates();
+        sendConnection();
+        connected = true;
         initialLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         Log.i(TAG,"Hello" + initialLocation);
 
@@ -107,11 +110,29 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
 
 
     public void getLocation() {
-       Location returnLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-        returnLat = returnLocation.getLatitude();
-        returnLon = returnLocation.getLongitude();
-        sendGPS();
+      
+        if (connected) {
+            returnLat = initialLocation.getLatitude();
+            returnLon = initialLocation.getLongitude();
+            sendGPS();
+        } else {
+            sendGPSError();
+        }
+       
 
+    }
+
+    private void sendGPSError() {
+        Intent gps = new Intent(this, MainService.class);
+        gps.putExtra("Action","GPS");
+        gps.putExtra("Ready","No");
+        startService(gps);
+    }
+
+    private void sendConnection() {
+        Intent connect = new Intent(this,MainService.class);
+        connect.putExtra("Action","Connect");
+        startService(connect);
     }
 
     public void startLocationUpdates() {
@@ -193,6 +214,7 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
     public void sendGPS() {
         Intent gps = new Intent(this, MainService.class);
         gps.putExtra("Action","GPS");
+        gps.putExtra("Ready","Yes");
         gps.putExtra("Lat", returnLat);
         gps.putExtra("Lon", returnLon);
         startService(gps);

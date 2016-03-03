@@ -37,6 +37,12 @@ public class MainService extends Service  {
     int stepsTaken = 0;
     double currentLat = 0.0;
     double currentLon = 0.0;
+    ArrayList<String> currentPrepType = new ArrayList<String>();
+    ArrayList<String> currentPrepVolume = new ArrayList<String>();
+    ArrayList<String> currentWindSpeed = new ArrayList<String>();
+    ArrayList<String> currenttempMax = new ArrayList<String>();
+    ArrayList<String> currenttempMin = new ArrayList<String>();
+    private volatile boolean connected = false;
 
 
 
@@ -55,6 +61,8 @@ public class MainService extends Service  {
         startService(startStepCounter);
 
         startAlarm();
+        getWeather();
+//        getGPS();
 
 
     }
@@ -93,9 +101,8 @@ public class MainService extends Service  {
 
     @Override
     public int onStartCommand (Intent intent, int flags, int startId){
-        Log.i(TAG, "onStartCommand: It reached the start");
-        Bundle extras = intent.getExtras();
 
+        Bundle extras = intent.getExtras();
 
         if(extras != null) {
 
@@ -103,7 +110,7 @@ public class MainService extends Service  {
 
             if (ActionName.equals("Wifi")) {
                 ArrayListWrapper w = (ArrayListWrapper) intent.getSerializableExtra("list");
-                wiList = w.getNames();
+                wiList = w.getItems();
 
             } else if(ActionName.equals("Step")){
                 String stepStatus = intent.getStringExtra("Status");
@@ -116,8 +123,31 @@ public class MainService extends Service  {
                 stepsTaken = intent.getIntExtra("StepCount",0);
 
             } else if (ActionName.equals("GPS")) {
-                currentLat = intent.getDoubleExtra("Lat",0.0);
-                currentLon = intent.getDoubleExtra("Lon",0.0);
+                String holder = intent.getStringExtra("Ready");
+                Log.i(TAG, "ErrorControl ");
+                if(holder.equals("No")) {
+                    Log.i(TAG, "ErrorControl ");
+                 getGPS();
+                } else if (holder.equals("Yes")) {
+                    currentLat = intent.getDoubleExtra("Lat", 0.0);
+                    currentLon = intent.getDoubleExtra("Lon", 0.0);
+                    Log.i(TAG, "GPSLat: " + currentLat);
+                    Log.i(TAG, "GPSLon: " + currentLon);
+                }
+            } else if (ActionName.equals("Weather")) {
+                ArrayListWrapper w1 = (ArrayListWrapper) intent.getSerializableExtra("PrepType");
+                currentPrepType = w1.getItems();
+                ArrayListWrapper w2 = (ArrayListWrapper) intent.getSerializableExtra("PrepVolume");
+                currentPrepVolume = w2.getItems();
+                ArrayListWrapper w3 = (ArrayListWrapper) intent.getSerializableExtra("WindSpeed");
+                currentWindSpeed = w3.getItems();
+                ArrayListWrapper w4 = (ArrayListWrapper) intent.getSerializableExtra("tempMax");
+                currenttempMax = w4.getItems();
+                ArrayListWrapper w5 = (ArrayListWrapper) intent.getSerializableExtra("tempMin");
+                currenttempMin = w5.getItems();
+            } else if (ActionName.equals("Connect")) {
+                connected = true;
+                getGPS();
             }
 
         }
@@ -131,11 +161,22 @@ public class MainService extends Service  {
     }
 
     private void getGPS() {
-        Intent getGPS = new Intent(this,LocationService.class);
-        getGPS.putExtra("Action", "GPS");
-        startService(getGPS);
+        if(connected) {
+            Log.i(TAG, "getGPS: This was called");
+            Intent getGPS = new Intent(this, LocationService.class);
+            getGPS.putExtra("Action", "GPS");
+            startService(getGPS);
+        }
     }
 
+
+    private void getWeather() {
+        Intent getWeather = new Intent(this,weatherIntentService.class);
+        getWeather.putExtra("Action","Location");
+       getWeather.putExtra("Lat",currentLat);
+        getWeather.putExtra("Lon",currentLon);
+        startService(getWeather);
+    }
 
     @Nullable
     @Override
