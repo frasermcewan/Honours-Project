@@ -94,7 +94,8 @@ public class handleXML {
 
                 eventType = parser.next();
             }
-
+               done = true;
+            Log.i(TAG, "XMLParse: " );
 
         } catch (XmlPullParserException e) {
             e.printStackTrace();
