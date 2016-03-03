@@ -23,6 +23,7 @@ public class StepCounterService extends Service implements SensorEventListener {
     private int steps;
     private boolean sCounter = false;
     private boolean sDetector = false;
+    int lastSteps = 0;
 
 
 
@@ -37,7 +38,7 @@ public class StepCounterService extends Service implements SensorEventListener {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.i(TAG, "onStartCommandStepCounter: ");
+
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         Sensor stepCounter = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
         Sensor stepDetector = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
@@ -51,8 +52,6 @@ public class StepCounterService extends Service implements SensorEventListener {
         if (stepDetector != null && sCounter == false) {
             sensorManager.registerListener(this, stepDetector, SensorManager.SENSOR_DELAY_UI);
             sDetector = true;
-        } else {
-            Toast.makeText(this, "StepDetector and counter not available!", Toast.LENGTH_LONG).show();
         }
 
         checkToEndService();
@@ -63,19 +62,27 @@ public class StepCounterService extends Service implements SensorEventListener {
         if (!sDetector && !sCounter) {
             onDestroy();
         } else {
-            Intent i = new Intent(this, MainService.InfoReceiver.class);
+            Intent i = new Intent(this, MainService.class);
             i.putExtra("Action","Step");
             i.putExtra("Status","true");
+            startService(i);
 
         }
     }
 
 
+    public void notifyMaster() {
+
+    }
+
+
     @Override
     public void onDestroy() {
-    Intent i = new Intent(this, MainService.InfoReceiver.class);
+        Log.i(TAG, "onDestroy: ");
+    Intent i = new Intent(this, MainService.class);
     i.putExtra("Action","Step");
     i.putExtra("Status","false");
+        startService(i);
         super.onDestroy();
 
     }
@@ -86,16 +93,17 @@ public class StepCounterService extends Service implements SensorEventListener {
     public void onSensorChanged(SensorEvent event) {
         float[] values = event.values;
         int steps = -1;
-        int lastSteps = 0;
+
 
         if (values.length > 0) {
             steps = (int) values[0];
         }
 
-        if(steps > (lastSteps + 50)) {
-            Intent i = new Intent(this, MainService.InfoReceiver.class);
-            i.putExtra("Action", "StepsTaken");
+        if(steps >= lastSteps) {
+            Intent i = new Intent(this, MainService.class);
+            i.putExtra("Action", "GPSteps");
             i.putExtra("StepCount", steps);
+            startService(i);
         }
         lastSteps = steps;
 

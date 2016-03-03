@@ -242,9 +242,7 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
     public void onClick(View savedInstance) {
         switch (savedInstance.getId()) {
             case R.id.CreateSigniture:
-                Intent l = new Intent(this, MainService.InfoReceiver.class);
-                l.putExtra("Action","Main");
-                sendBroadcast(l);
+                //To do
                 break;
             case R.id.MarkerHomeButton:
                 Home = true;

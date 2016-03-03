@@ -38,16 +38,11 @@
         <service android:name=".MainService"/>
         <service android:name=".WifiIntentService"/>
         <service android:name=".StepCounterService"/>
+        <service android:name=".LocationService"/>
         <receiver
             android:name=".wifiHolder"
             android:process=":remote" >
         </receiver>
-        <receiver android:name=".MainService$InfoReceiver"
-            android:process=":remote">
-
-        </receiver>
-
-
     </application>
 
 </manifest>

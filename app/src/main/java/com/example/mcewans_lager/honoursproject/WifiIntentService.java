@@ -58,10 +58,11 @@ public class WifiIntentService extends IntentService {
 
     public void sendIntent() {
         Log.i(TAG, "sendIntent: ");
-        Intent l = new Intent(this, MainService.InfoReceiver.class);
+        Intent l = new Intent(this, MainService.class);
         l.putExtra("Action","Wifi");
         l.putExtra("list", new ArrayListWrapper(theList));
-        sendBroadcast(l);
+//        sendBroadcast(l);
+        startService(l);
         theList.clear();
 
     }
@@ -96,14 +97,5 @@ public class WifiIntentService extends IntentService {
 
     }
 
-
-    public void sendToReceiver() {
-        Intent l = new Intent(this, MainService.InfoReceiver.class);
-        l.putExtra("Action","Wifi");
-        l.putExtra("list", new ArrayListWrapper(theList));
-        sendBroadcast(l);
-        theList.clear();
-
-    }
 
 }
