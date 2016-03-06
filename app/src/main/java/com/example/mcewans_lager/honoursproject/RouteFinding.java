@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.location.Location;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
@@ -41,6 +42,7 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
     private Button markerAwayButton;
     private PendingIntent mGeofencePendingIntent;
     private List mGeofenceList;
+    private List finalGeofenceList;
     private LatLng touchLocation;
     private Marker homeMarker;
     private Marker workMarker;
@@ -143,11 +145,11 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
                                     500
                             )
                             .setLoiteringDelay(30000)
-                            .setExpirationDuration(Geofence.NEVER_EXPIRE)
+                            .setExpirationDuration(7200000)
                             .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
                                     Geofence.GEOFENCE_TRANSITION_EXIT | Geofence.GEOFENCE_TRANSITION_DWELL)
                             .build());
-                    addGeoFences();
+                    registerGeoFences();
 
                 } else if (Work == true) {
 
@@ -170,11 +172,11 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
                                     50
                             )
                             .setLoiteringDelay(5000)
-                            .setExpirationDuration(Geofence.NEVER_EXPIRE)
+                            .setExpirationDuration(7200000)
                             .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
                                     Geofence.GEOFENCE_TRANSITION_EXIT | Geofence.GEOFENCE_TRANSITION_DWELL)
                             .build());
-                    addGeoFences();
+                    registerGeoFences();
 
                 }
 
@@ -195,6 +197,9 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
         return PendingIntent.getService(this, 0, intent, PendingIntent.
                 FLAG_UPDATE_CURRENT);
     }
+
+
+
 
     @Override
     public void onConnected(Bundle bundle) {
@@ -219,13 +224,26 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
     }
 
 
-    public void addGeoFences() {
+    public void registerGeoFences() {
 
         LocationServices.GeofencingApi.addGeofences(mGoogleApiClient, mGeofenceList,
                 getGeofencePendingIntent());
 
 
+        for(int i=0; i<mGeofenceList.size(); i++) {
+            finalGeofenceList.add(mGeofenceList.get(i));
+        }
+
+        mGeofenceList.clear();
+
     }
+
+
+    public void deRegisterGeoFences() {
+        LocationServices.GeofencingApi.removeGeofences(mGoogleApiClient,getGeofencePendingIntent());
+
+    }
+
 
     @Override
     public void onConnectionSuspended(int i) {

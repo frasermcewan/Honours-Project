@@ -43,6 +43,8 @@ public class MainService extends Service  {
     ArrayList<String> currenttempMax = new ArrayList<String>();
     ArrayList<String> currenttempMin = new ArrayList<String>();
     private volatile boolean connected = false;
+    String geoTransistion;
+    Bundle extras;
 
 
 
@@ -102,7 +104,11 @@ public class MainService extends Service  {
     @Override
     public int onStartCommand (Intent intent, int flags, int startId){
 
-        Bundle extras = intent.getExtras();
+
+        if (intent.getExtras() != null) {
+
+            extras = intent.getExtras();
+        }
 
         if(extras != null) {
 
@@ -111,6 +117,7 @@ public class MainService extends Service  {
             if (ActionName.equals("Wifi")) {
                 ArrayListWrapper w = (ArrayListWrapper) intent.getSerializableExtra("list");
                 wiList = w.getItems();
+                Log.i(TAG, "onStartCommand: " + wiList);
 
             } else if(ActionName.equals("Step")){
                 String stepStatus = intent.getStringExtra("Status");
@@ -131,8 +138,8 @@ public class MainService extends Service  {
                 } else if (holder.equals("Yes")) {
                     currentLat = intent.getDoubleExtra("Lat", 0.0);
                     currentLon = intent.getDoubleExtra("Lon", 0.0);
-                    Log.i(TAG, "GPSLat: " + currentLat);
-                    Log.i(TAG, "GPSLon: " + currentLon);
+                    Log.i(TAG, "MainGPSLat: " + currentLat);
+                    Log.i(TAG, "MainGPSLon: " + currentLon);
                 }
             } else if (ActionName.equals("Weather")) {
                 ArrayListWrapper w1 = (ArrayListWrapper) intent.getSerializableExtra("PrepType");
@@ -148,10 +155,25 @@ public class MainService extends Service  {
             } else if (ActionName.equals("Connect")) {
                 connected = true;
                 getGPS();
+            } else if (ActionName.equals("Geofence")) {
+                geoTransistion = intent.getStringExtra("Details");
+                Log.i(TAG, "onStartCommand: " + geoTransistion);
+                startGPSNotification();
+
+
             }
 
         }
         return START_STICKY;
+    }
+
+    private void startGPSNotification() {
+        Intent startNot = new Intent(this, sendNotificationService.class);
+        startNot.putExtra("Action","GPSNot");
+        startNot.putExtra("Details", geoTransistion);
+        startNot.putExtra("Steps", stepsTaken);
+        startService(startNot);
+
     }
 
     private void startGPSSteps() {
