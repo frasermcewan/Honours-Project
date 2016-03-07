@@ -3,19 +3,19 @@ package com.example.mcewans_lager.honoursproject;
 
 
 
-public class Locations {
+public class Signatures {
 
     private int _id;
     private String _locationName;
-    private int _GPS;
+    private String _GPS;
     private String _Wifi;
 
 
-    public Locations() {
+    public Signatures() {
 
     }
 
-    public Locations(String locationName){
+    public Signatures(String locationName){
         this._locationName = locationName;
 
     }
@@ -29,7 +29,7 @@ public class Locations {
 
     }
 
-    public void setGPS(int GPS) {
+    public void setGPS(String GPS) {
         this._GPS = GPS;
     }
 
@@ -45,7 +45,7 @@ public class Locations {
         return _id;
     }
 
-    public int getGPS () {
+    public String getGPS () {
         return _GPS;
     }
 
