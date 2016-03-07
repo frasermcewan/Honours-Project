@@ -88,9 +88,9 @@ public class DBHandler extends SQLiteOpenHelper {
     private Signatures cursorToSignitures(Cursor cursor) {
         Signatures sig = new Signatures();
         sig.setID(cursor.getInt(0));
-        sig.setLocationName(cursor.getString(2));
-        sig.setGPS(cursor.getString(3));
-        sig.setWIFI(cursor.getString(4));
+        sig.setLocationName(cursor.getString(1));
+//        sig.setGPS(cursor.getString(3));
+//        sig.setWIFI(cursor.getString(4));
         return sig;
     }
 

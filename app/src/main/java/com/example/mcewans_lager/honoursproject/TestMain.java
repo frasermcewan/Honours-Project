@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -16,6 +17,8 @@ public class TestMain extends FragmentActivity {
     EditText buckysInput;
     TextView buckysText;
     DBHandler dbHandler;
+
+    protected static final String TAG = "Main";
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -30,6 +33,7 @@ public class TestMain extends FragmentActivity {
     public void addButtonClicked(View view){
        Signatures signatures = new Signatures(buckysInput.getText().toString());
         dbHandler.addLocation(signatures);
+        Log.i(TAG, "addButtonClicked: " + dbHandler.returnLocation());
         printDatabase();
     }
 
