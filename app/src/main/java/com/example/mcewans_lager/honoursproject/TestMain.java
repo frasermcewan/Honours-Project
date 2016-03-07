@@ -9,6 +9,8 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+
 /**
  * Created by mcewans_lager on 01/03/16.
  */
@@ -33,7 +35,16 @@ public class TestMain extends FragmentActivity {
     public void addButtonClicked(View view){
        Signatures signatures = new Signatures(buckysInput.getText().toString());
         dbHandler.addLocation(signatures);
-        Log.i(TAG, "addButtonClicked: " + dbHandler.returnLocation());
+
+        ArrayList<Signatures> hold = new ArrayList<>();
+        Signatures testHolder = new Signatures();
+        hold = dbHandler.returnLocation();
+
+        for (int i = 0; i < hold.size(); i++ ) {
+            testHolder = hold.get(i);
+            Log.i(TAG, "addButtonClicked: " + testHolder.getLocationName());
+        }
+
         printDatabase();
     }
 
