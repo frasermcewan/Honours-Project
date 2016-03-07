@@ -53,13 +53,10 @@ public class DBhandler extends SQLiteOpenHelper {
     }
 
 
-    public Signatures returnLocation() {
+    public ArrayList returnLocation() {
 
         ArrayList <Signatures> holder = new ArrayList<>();
-        Signatures holderLocation = null;
-        String locationHolder = "";
-        String WifiHolder="";
-        String GPSHolder ="";
+
 
         SQLiteDatabase db = getWritableDatabase();
         String query = "SELECT * FROM " + TABLE_PRODUCTS + " WHERE 1";
@@ -71,18 +68,35 @@ public class DBhandler extends SQLiteOpenHelper {
 
         while (!c.isAfterLast()) {
             if (c.getString(c.getColumnIndex("locationName")) != null) {
-                locationHolder += c.getString(c.getColumnIndex("locationName"));
-                WifiHolder += c.getString(c.getColumnIndex("WIFI"));
-                GPSHolder += c.getString(c.getColumnIndex("latLng"));
-                locationHolder += "\n";
+               Signatures siggy = cursorToSignitures(c);
+                holder.add(siggy);
+
+
             }
             c.moveToNext();
         }
+        c.close();
         db.close();
 
-        return holderLocation;
+        return holder;
 
     }
+
+
+
+
+    private Signatures cursorToSignitures(Cursor cursor) {
+        Signatures sig = new Signatures();
+        sig.setID(cursor.getInt(0));
+        sig.setLocationName(cursor.getString(2));
+        sig.setGPS(cursor.getString(3));
+        sig.setWIFI(cursor.getString(4));
+        return sig;
+    }
+
+
+
+
 
     public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         onUpgrade(db, oldVersion, newVersion);

@@ -7,7 +7,7 @@ public class Signatures {
 
     private int _id;
     private String _locationName;
-    private int _GPS;
+    private String _GPS;
     private String _Wifi;
 
 
@@ -29,7 +29,7 @@ public class Signatures {
 
     }
 
-    public void setGPS(int GPS) {
+    public void setGPS(String GPS) {
         this._GPS = GPS;
     }
 
@@ -45,7 +45,7 @@ public class Signatures {
         return _id;
     }
 
-    public int getGPS () {
+    public String getGPS () {
         return _GPS;
     }
 
