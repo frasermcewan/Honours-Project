@@ -30,7 +30,7 @@ public class AcelerometerSteps extends Service implements SensorEventListener {
 
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         Sensor acel = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        sensorManager.registerListener(this,acel,SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(this,acel,SensorManager.SENSOR_DELAY_UI);
 
         return START_STICKY;
     }
@@ -42,8 +42,8 @@ public class AcelerometerSteps extends Service implements SensorEventListener {
         float x = event.values[0];
         float y = event.values[1];
         float z = event.values[2];
-        
-        Log.i(TAG, "onSensorChanged: " + z);
+
+        Log.i(TAG, "onSensorChanged: " + x);
 
 
     }
