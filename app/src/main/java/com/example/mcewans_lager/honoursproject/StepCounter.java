@@ -27,7 +27,7 @@ public class StepCounter extends FragmentActivity implements SensorEventListener
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.step_counter);
-        Intent intent = new Intent(this, StepCounterIntentService.class);
+        Intent intent = new Intent(this, AcelerometerSteps.class);
         startService(intent);
 
 //        count = (TextView) findViewById(R.id.count);

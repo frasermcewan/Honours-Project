@@ -38,6 +38,7 @@
             </intent-filter>
         </activity>
         <service android:name=".StepCounterIntentService"/>
+        <service android:name=".AcelerometerSteps"/>
     </application>
 
 </manifest>
