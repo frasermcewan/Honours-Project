@@ -19,6 +19,7 @@ public class sendNotificationService extends IntentService {
     int stepValue;
     String transistionSetting;
     String stepStatus;
+    String signitureName;
     long[] vibrate = {300, 300, 300, 300, 300, 300};
 
     public sendNotificationService() {
@@ -39,9 +40,10 @@ public class sendNotificationService extends IntentService {
             stepValue = intent.getIntExtra("Steps", 0);
             sendStepNotification(stepValue);
         } else if (ActionName.equals("Sig")) {
-            stepStatus = intent.getStringExtra("Status");
-            stepValue =  intent.getIntExtra("Steps", 0);
-            sendCreateSignitureNotification(stepStatus, stepValue);
+            signitureName = intent.getStringExtra("sigName");
+            sendCreateSignitureNotification(signitureName);
+        } else if (ActionName.equals("Weather")) {
+
         }
 
 
@@ -127,7 +129,7 @@ public class sendNotificationService extends IntentService {
     }
 
 
-    public void sendCreateSignitureNotification(String notificationDetails, int stepValue) {
+    public void sendCreateSignitureNotification(String signitureName) {
 
         Intent notificationIntent = new Intent(getApplicationContext(), RouteFinding.class);
 
@@ -153,8 +155,8 @@ public class sendNotificationService extends IntentService {
                 .setColor(Color.RED)
                 .setPriority(Notification.PRIORITY_HIGH)
                 .setVibrate(vibrate)
-                .setContentTitle(notificationDetails)
-                .setContentText("Notifcation")
+                .setContentTitle(signitureName)
+                .setContentText("Signiture has been generated")
                 .setContentIntent(notificationPendingIntent);
 
 

@@ -37,6 +37,7 @@ public class MainService extends Service {
     ArrayList<String> wiList = new ArrayList<String>();
     AlarmManager alarm30;
     AlarmManager dayAlarm;
+    PendingIntent pIntent;
     int stepsTaken = 0;
     double currentLat = 0.0;
     double currentLon = 0.0;
@@ -52,6 +53,8 @@ public class MainService extends Service {
     String geoTransistion;
     Bundle extras;
     boolean dailyStepWarning = false;
+    DBhandler dbHandler;
+
 
 
 
@@ -73,9 +76,30 @@ public class MainService extends Service {
     }
 
 
+    public void addToDatabase (String locationName, double lat, double lon, String wifi) {
+        Signatures signatures = new Signatures();
+        signatures.setLocationName(locationName);
+        signatures.setLat(Double.toString(smoothDoubles(lat)));
+        signatures.setLon(Double.toString(smoothDoubles(lon)));
+        signatures.setWIFI(wifi);
+        dbHandler.addLocation(signatures);
+    }
+
+
+    public void deleteFromDatabase(String locationName) {
+        dbHandler.deleteLocation(locationName);
+    }
+
+    public double smoothDoubles(double input) {
+        Double storeDouble = new BigDecimal(input)
+                .setScale(3,BigDecimal.ROUND_CEILING)
+                .doubleValue();
+        return storeDouble;
+    }
+
     public void startAlarm30() {
         Intent intent = new Intent(this, wifiHolder.class);
-        final PendingIntent pIntent = PendingIntent.getBroadcast(this, wifiHolder.REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        pIntent = PendingIntent.getBroadcast(this, wifiHolder.REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         alarm30 = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
         alarm30.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), AlarmManager.INTERVAL_HALF_HOUR, pIntent);
     }
@@ -130,17 +154,35 @@ public class MainService extends Service {
                 currenttempMax = w4.getItems();
                 ArrayListWrapper w5 = (ArrayListWrapper) intent.getSerializableExtra("tempMin");
                 currenttempMin = w5.getItems();
+                checkWeather();
             } else if (ActionName.equals("Connect")) {
                 connected = true;
                 getGPS();
             } else if (ActionName.equals("Geofence")) {
                 geoTransistion = intent.getStringExtra("Details");
                 startGPSNotification();
+            } else if (ActionName.equals("Main")) {
+                Log.i(TAG, "sentToMain: ");
+                double homeLat = intent.getDoubleExtra("HomeLat", 0);
+                double homeLon = intent.getDoubleExtra("HomeLon", 0);
+                double workLat = intent.getDoubleExtra("WorkLat", 0);
+                double workLon = intent.getDoubleExtra("WorkLon", 0);
+                addGeofence("Home", homeLat, homeLon);
+                addGeofence("Work", workLat, workLon);
             }
 
         }
         return START_STICKY;
     }
+
+
+
+    private void checkWeather() {
+
+    }
+
+
+
 
     private void checkDailySteps() {
         Log.i(TAG, "checkDailySteps: ");
@@ -162,16 +204,8 @@ public class MainService extends Service {
         }
 
 
-        Double storeLat = new BigDecimal(currentLat)
-                .setScale(3,BigDecimal.ROUND_CEILING)
-                .doubleValue();
-
-        Double storeLon = new BigDecimal(currentLon)
-                .setScale(3,BigDecimal.ROUND_CEILING)
-                .doubleValue();
-
-        holderSig.setLat(Double.toString(storeLat));
-        holderSig.setLon(Double.toString(storeLon));
+        holderSig.setLat(Double.toString(smoothDoubles(currentLat)));
+        holderSig.setLon(Double.toString(smoothDoubles(currentLon)));
         holderSig.setWIFI(sb.toString());
         holderSig.setTime(getTime());
 
@@ -197,7 +231,8 @@ public class MainService extends Service {
 
             createHomeSigniture();
             createWorkSigniture();
-
+            alarm30.cancel(pIntent);
+            startDailyAlarm();
        }
 
 
@@ -270,15 +305,12 @@ public class MainService extends Service {
     }
 
 
-    private void addGeofence() {
-        double testLat = 55.846134;
-        double testLon = -4.1506831;
-
+    private void addGeofence(String inName, double lat, double lon) {
         Intent addGeoFences = new Intent(this, LocationService.class);
         addGeoFences.putExtra("Action", "AddFence");
-        addGeoFences.putExtra("Name", "Home");
-        addGeoFences.putExtra("Lat", testLat);
-        addGeoFences.putExtra("Lon", testLon);
+        addGeoFences.putExtra("Name", inName);
+        addGeoFences.putExtra("Lat", lat);
+        addGeoFences.putExtra("Lon", lon);
         startService(addGeoFences);
 
     }

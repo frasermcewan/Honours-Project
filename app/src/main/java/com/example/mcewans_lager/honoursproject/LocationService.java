@@ -182,7 +182,6 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
     @Override
     public void onLocationChanged(Location location) {
         int holderSteps = 0;
-        Log.i(TAG, "onLocationChanged: ");
 
         double previousLon = initialLocation.getLongitude();
         double previousLat = initialLocation.getLatitude();
@@ -200,17 +199,15 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
         if (distanceInMeters < 10.00) {
 
             if (currentAlt > previousAlt) {
-                holderSteps = holderSteps + (int) (distanceInMeters / 0.75);
+                holderSteps = holderSteps + (int) (distanceInMeters / 1.25);
 
             } else {
-                holderSteps = holderSteps + (int) (distanceInMeters / 0.80);
+                holderSteps = holderSteps + (int) (distanceInMeters / 1.35);
 
 
             }
 
             stepsTaken = stepsTaken + holderSteps;
-
-        Log.i(TAG, "onLocationChanged: " + stepsTaken);
 
             if (stepsTaken >= sendSteps) {
                 sendSteps = sendSteps + 50;
@@ -249,6 +246,7 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
 
 
     private void buildGeofences(String id, double latitude, double longitude) {
+        Log.i(TAG, "buildGeofences: ");
         
         mGeofenceList.add(new Geofence.Builder()
 

@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.location.Location;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -189,6 +190,7 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
         switch (savedInstance.getId()) {
             case R.id.CreateSigniture:
                 if(homeLat != 0 && workLat != 0) {
+                    Log.i(TAG, "onClick: ");
                     Intent intent = new Intent(this, MainService.class);
                     intent.putExtra("Action", "Main");
                     intent.putExtra("HomeLat", homeLat);
@@ -197,7 +199,7 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
                     intent.putExtra("WorkLon", workLon);
                     startService(intent);
                  } else {
-                                Toast.makeText(this, "Please choose both loctaions", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, "Please choose both locations", Toast.LENGTH_LONG).show();
                 }
                 break;
             case R.id.MarkerHomeButton:
