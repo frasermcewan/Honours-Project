@@ -12,6 +12,8 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
 
+import java.util.Random;
+
 
 public class sendNotificationService extends IntentService {
 
@@ -39,8 +41,8 @@ public class sendNotificationService extends IntentService {
         } else if (ActionName.equals("Step")) {
             stepValue = intent.getIntExtra("Steps", 0);
             sendStepNotification(stepValue);
-        } else if (ActionName.equals("Sig")) {
-            signitureName = intent.getStringExtra("sigName");
+        } else if (ActionName.equals("SigCreated")) {
+            signitureName = intent.getStringExtra("Name");
             sendCreateSignitureNotification(signitureName);
         } else if (ActionName.equals("Weather")) {
 
@@ -131,6 +133,8 @@ public class sendNotificationService extends IntentService {
 
     public void sendCreateSignitureNotification(String signitureName) {
 
+        Log.i(TAG, "sendCreateSignitureNotification: ");
+
         Intent notificationIntent = new Intent(getApplicationContext(), RouteFinding.class);
 
 
@@ -156,7 +160,7 @@ public class sendNotificationService extends IntentService {
                 .setPriority(Notification.PRIORITY_HIGH)
                 .setVibrate(vibrate)
                 .setContentTitle(signitureName)
-                .setContentText("Signiture has been generated")
+                .setContentText("Signiture has been generated at this location")
                 .setContentIntent(notificationPendingIntent);
 
 
@@ -165,7 +169,12 @@ public class sendNotificationService extends IntentService {
         NotificationManager mNotificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
-        mNotificationManager.notify(0, builder.build());
+
+        Random random = new Random();
+        int m = random.nextInt();
+        Log.i(TAG, "sendCreateSignitureNotification: " + m);
+
+        mNotificationManager.notify(m, builder.build());
 
     }
 

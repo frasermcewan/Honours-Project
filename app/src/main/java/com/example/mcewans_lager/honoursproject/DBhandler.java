@@ -5,19 +5,21 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import java.util.ArrayList;
 
 
 public class DBhandler extends SQLiteOpenHelper {
+    private static final String TAG = "Database";
     public static final int DATABASE_VERSION = 1;
     public static final String DATABASE_NAME = "Signature.db";
     public static final String TABLE_PRODUCTS = "Signatures";
     public static final String COLUMN_ID = "_id";
-    public static final String COLUMN_LOCATIONNAME = "locationName";
-    public static final String COLUMN_LAT = "lat";
-    public static final String COLUMN_LNG = "lng";
-    public static final String COLUMN_WIFI = "WIFI";
+    public static final String COLUMN_LOCATIONNAME = "_locationName";
+    public static final String COLUMN_LAT = "_lat";
+    public static final String COLUMN_LNG = "_lng";
+    public static final String COLUMN_WIFI = "_WIFI";
 
 
     public DBhandler(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
@@ -26,20 +28,20 @@ public class DBhandler extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         String query = "CREATE TABLE " + TABLE_PRODUCTS + "(" +
                 COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                COLUMN_LOCATIONNAME + " TEXT " +
-                COLUMN_LAT + "TEXT" +
-                    COLUMN_LNG + "TEXT" +
-                COLUMN_WIFI + "TEXT" +
+                COLUMN_LOCATIONNAME + " TEXT, " +
+                COLUMN_LAT + " TEXT, " +
+                COLUMN_LNG + " TEXT, " +
+                COLUMN_WIFI + " TEXT" +
                 ");";
         db.execSQL(query);
     }
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_PRODUCTS);
-
         onCreate(db);
     }
 
     public void addLocation(Signatures signatures) {
+        Log.i(TAG, "addLocation: ");
         ContentValues values = new ContentValues();
         values.put(COLUMN_LOCATIONNAME, signatures.getLocationName());
         values.put(COLUMN_LAT, signatures.getLat());
@@ -48,6 +50,12 @@ public class DBhandler extends SQLiteOpenHelper {
         SQLiteDatabase db = getWritableDatabase();
         db.insert(TABLE_PRODUCTS, null, values);
         db.close();
+    }
+
+    public void methodAccess( ) {
+        SQLiteDatabase db = getWritableDatabase();
+        dropTable(db,TABLE_PRODUCTS);
+
     }
 
     public void deleteLocation(String LocationName) {
@@ -62,20 +70,16 @@ public class DBhandler extends SQLiteOpenHelper {
 
 
         SQLiteDatabase db = getWritableDatabase();
-        String query = "SELECT * FROM " + TABLE_PRODUCTS + " WHERE 1";
+        String query = "SELECT * FROM " + TABLE_PRODUCTS ;
 
-        Cursor c = db.rawQuery(query, null);
+        Cursor c = db.rawQuery(query,null);
 
         c.moveToFirst();
 
-
         while (!c.isAfterLast()) {
-            if (c.getString(c.getColumnIndex("locationName")) != null) {
                 Signatures siggy = cursorToSignitures(c);
                 holder.add(siggy);
-
-
-            }
+            Log.i(TAG, "returnAllLocation: " + holder.size());
             c.moveToNext();
         }
         c.close();
@@ -133,26 +137,12 @@ public class DBhandler extends SQLiteOpenHelper {
         onUpgrade(db, oldVersion, newVersion);
     }
 
-    public String databaseToString() {
-        String dbString = "";
-        SQLiteDatabase db = getWritableDatabase();
-        String query = "SELECT * FROM " + TABLE_PRODUCTS + " WHERE 1";
+    public void dropTable (SQLiteDatabase db, String tableName) {
+        Log.i(TAG, "dropTable:" );
+        String query = ("DROP TABLE IF EXISTS " + tableName);
+        db.execSQL(query);
+        onCreate(db);
 
-        //Cursor points to a location in your results
-        Cursor c = db.rawQuery(query, null);
-        //Move to the first row in your results
-        c.moveToFirst();
-
-        //Position after the last row means the end of the results
-        while (!c.isAfterLast()) {
-            if (c.getString(c.getColumnIndex("locationName")) != null) {
-                dbString += c.getString(c.getColumnIndex("locationName"));
-                dbString += "\n";
-            }
-            c.moveToNext();
-        }
-        db.close();
-        return dbString;
     }
 
 

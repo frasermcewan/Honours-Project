@@ -8,6 +8,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -27,6 +28,7 @@ import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 
 
 public class MainService extends Service {
@@ -34,7 +36,7 @@ public class MainService extends Service {
 
     protected static final String TAG = "Service";
     PowerManager.WakeLock wakeLock;
-    ArrayList<String> wiList = new ArrayList<String>();
+    ArrayList<String> wiList;
     AlarmManager alarm30;
     AlarmManager dayAlarm;
     PendingIntent pIntent;
@@ -58,6 +60,7 @@ public class MainService extends Service {
 
 
 
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -66,28 +69,47 @@ public class MainService extends Service {
         wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
         wakeLock.acquire();
 
+        wiList = new ArrayList<String>();
+        dbHandler = new DBhandler(this, null, null, 1);
+
         Intent startStepCounter = new Intent(this, StepCounterService.class);
         startService(startStepCounter);
 
         startAlarm30();
         getTime();
         getGPS();
+        dropTable();
 
     }
 
 
-    public void addToDatabase (String locationName, double lat, double lon, String wifi) {
-        Signatures signatures = new Signatures();
-        signatures.setLocationName(locationName);
-        signatures.setLat(Double.toString(smoothDoubles(lat)));
-        signatures.setLon(Double.toString(smoothDoubles(lon)));
-        signatures.setWIFI(wifi);
-        dbHandler.addLocation(signatures);
+    public void dropTable () {
+        dbHandler.methodAccess();
     }
+
+    public void addToDatabase (String locationName, double lat, double lon, ArrayList<String> wifiList) {
+        Signatures submitToDatabase = new Signatures();
+        submitToDatabase.setLocationName(locationName);
+        submitToDatabase.setLat(Double.toString(smoothDoubles(lat)));
+        submitToDatabase.setLon(Double.toString(smoothDoubles(lon)));
+        submitToDatabase.setWIFI(convertWifitoString(wifiList));
+        dbHandler.addLocation(submitToDatabase);
+        getDatabaseSize();
+        signitureCreatedNotification(locationName);
+    }
+
+
+
 
 
     public void deleteFromDatabase(String locationName) {
         dbHandler.deleteLocation(locationName);
+    }
+
+    public void getDatabaseSize() {
+        ArrayList<Signatures> size = new ArrayList<>();
+        size = dbHandler.returnAllLocation();
+        Log.i(TAG, "getDatabaseSize: " + size.size());
     }
 
     public double smoothDoubles(double input) {
@@ -122,6 +144,7 @@ public class MainService extends Service {
             if (ActionName.equals("Wifi")) {
                 ArrayListWrapper w = (ArrayListWrapper) intent.getSerializableExtra("list");
                 wiList = w.getItems();
+                getWeather();
                 setSigniture();
             } else if (ActionName.equals("Step")) {
                 String stepStatus = intent.getStringExtra("Status");
@@ -167,8 +190,15 @@ public class MainService extends Service {
                 double homeLon = intent.getDoubleExtra("HomeLon", 0);
                 double workLat = intent.getDoubleExtra("WorkLat", 0);
                 double workLon = intent.getDoubleExtra("WorkLon", 0);
+                smoothDoubles(homeLat);
+                smoothDoubles(homeLon);
+                smoothDoubles(workLat);
+                smoothDoubles(workLon);
                 addGeofence("Home", homeLat, homeLon);
                 addGeofence("Work", workLat, workLon);
+                addToDatabase("Home", homeLat, homeLon, wiList);
+                addToDatabase("Work", workLat, workLon, wiList);
+
             }
 
         }
@@ -178,6 +208,7 @@ public class MainService extends Service {
 
 
     private void checkWeather() {
+
 
     }
 
@@ -196,21 +227,26 @@ public class MainService extends Service {
 
     private void setSigniture() {
         Signatures holderSig = new Signatures();
-        StringBuilder sb = new StringBuilder();
-
-        for (int i = 0; i < wiList.size(); i++) {
-            sb.append(wiList.get(i));
-            sb.append(" ");
-        }
-
 
         holderSig.setLat(Double.toString(smoothDoubles(currentLat)));
         holderSig.setLon(Double.toString(smoothDoubles(currentLon)));
-        holderSig.setWIFI(sb.toString());
+        holderSig.setWIFI(convertWifitoString(wiList));
         holderSig.setTime(getTime());
 
         dataHolder.add(holderSig);
         checkForScanLimit();
+    }
+
+
+    public String convertWifitoString(ArrayList<String> in) {
+        StringBuilder sb = new StringBuilder();
+
+        for (int i = 0; i < in.size(); i++) {
+            sb.append(in.get(i));
+            sb.append(" ");
+        }
+
+        return sb.toString();
     }
 
     private void checkForScanLimit() {
@@ -272,10 +308,12 @@ public class MainService extends Service {
 
     }
 
-    private void signitureCreatedNotification() {
+    private void signitureCreatedNotification(String locationName) {
+        Log.i(TAG, "signitureCreatedNotification: ");
         Intent startNot = new Intent(this, sendNotificationService.class);
         startNot.putExtra("Action", "SigCreated");
-        startNot.putExtra("Name", "NameValue");
+        startNot.putExtra("Name", locationName);
+        startService(startNot);
 
     }
 
@@ -329,5 +367,10 @@ public class MainService extends Service {
         Double dateVariable = Double.parseDouble(dateFormat.format(cal.getTime()));
         return dateVariable;
     }
+
+    public Date checkDate() {
+        return null;
+    }
+
 
 }
