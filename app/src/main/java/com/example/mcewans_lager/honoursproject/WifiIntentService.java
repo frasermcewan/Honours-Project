@@ -15,7 +15,10 @@ import android.util.Log;
 
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by mcewans_lager on 27/02/16.
@@ -57,11 +60,9 @@ public class WifiIntentService extends IntentService {
     }
 
     public void sendIntent() {
-        Log.i(TAG, "sendIntent: ");
         Intent l = new Intent(this, MainService.class);
         l.putExtra("Action","Wifi");
         l.putExtra("list", new ArrayListWrapper(theList));
-//        sendBroadcast(l);
         startService(l);
         theList.clear();
 
@@ -86,13 +87,21 @@ public class WifiIntentService extends IntentService {
 
             setLists();
 
+
         }
 
 
         public void setLists() {
             theList.addAll(holderList);
+            clearDuplicates();
+        }
+
+        private void clearDuplicates() {
+            Set<String> holderSet = new LinkedHashSet<>(theList);
+            theList.clear();
+            theList.addAll(holderSet);
             sendIntent();
-//            sendToReceiver();
+
         }
 
     }

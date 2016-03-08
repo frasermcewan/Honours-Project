@@ -1,20 +1,16 @@
 package com.example.mcewans_lager.honoursproject;
 
 
-
-import android.app.PendingIntent;
 import android.content.Intent;
 import android.location.Location;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.Geofence;
-import com.google.android.gms.location.GeofenceStatusCodes;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -23,9 +19,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
+
 
 
 public class RouteFinding extends FragmentActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, View.OnClickListener {
@@ -40,15 +34,16 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
     private Button createButton;
     private Button markerHomeButton;
     private Button markerAwayButton;
-    private PendingIntent mGeofencePendingIntent;
-    private List mGeofenceList;
-    private List finalGeofenceList;
     private LatLng touchLocation;
+    private double homeLat = 0;
+    private double homeLon = 0;
+    private double workLat = 0;
+    private double workLon = 0;
     private Marker homeMarker;
     private Marker workMarker;
-    private Boolean Home = true;
+    private Boolean Home = false;
     private Boolean Work = false;
-    private int Time;
+
 
 
     @Override
@@ -58,9 +53,6 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
         Intent intent = new Intent(this, MainService.class);
         startService(intent);
         setUpMapIfNeeded();
-
-
-        mGeofenceList = new ArrayList<Geofence>();
 
         createButton = (Button) findViewById(R.id.CreateSigniture);
         markerHomeButton = (Button) findViewById(R.id.MarkerHomeButton);
@@ -84,15 +76,6 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
 
     }
 
-    protected void onStart(Bundle savedInstanceState) {
-        super.onStart();
-        mGoogleApiClient.connect();
-    }
-
-    protected void onPause(Bundle savedInstanceState) {
-        super.onPause();
-        mGoogleApiClient.disconnect();
-    }
 
     @Override
     protected void onResume() {
@@ -132,24 +115,13 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
                     if (homeMarker != null) {
                         homeMarker.remove();
                     }
+
+                    homeLat = touchLocation.latitude;
+                    homeLon = touchLocation.longitude;
+
                     homeMarker = mMap.addMarker(new MarkerOptions().position(touchLocation).title("Home Location").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
                     Home = false;
 
-                    mGeofenceList.add(new Geofence.Builder()
-
-                            .setRequestId("Home GeoFence")
-
-                            .setCircularRegion(
-                                    touchLocation.latitude,
-                                    touchLocation.longitude,
-                                    500
-                            )
-                            .setLoiteringDelay(30000)
-                            .setExpirationDuration(7200000)
-                            .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
-                                    Geofence.GEOFENCE_TRANSITION_EXIT | Geofence.GEOFENCE_TRANSITION_DWELL)
-                            .build());
-                    registerGeoFences();
 
                 } else if (Work == true) {
 
@@ -158,25 +130,11 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
 
                     }
 
+                    workLat = touchLocation.latitude;
+                    workLon = touchLocation.longitude;
+
                     workMarker = mMap.addMarker(new MarkerOptions().position(touchLocation).title("Work Location").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
                     Work = false;
-
-
-                    mGeofenceList.add(new Geofence.Builder()
-
-                            .setRequestId("Work GeoFence")
-
-                            .setCircularRegion(
-                                    touchLocation.latitude,
-                                    touchLocation.longitude,
-                                    50
-                            )
-                            .setLoiteringDelay(5000)
-                            .setExpirationDuration(7200000)
-                            .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
-                                    Geofence.GEOFENCE_TRANSITION_EXIT | Geofence.GEOFENCE_TRANSITION_DWELL)
-                            .build());
-                    registerGeoFences();
 
                 }
 
@@ -187,16 +145,7 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
     }
 
 
-    private PendingIntent getGeofencePendingIntent() {
 
-        if (mGeofencePendingIntent != null) {
-            return mGeofencePendingIntent;
-        }
-
-        Intent intent = new Intent(this, GeofenceTransitionsIntentService.class);
-        return PendingIntent.getService(this, 0, intent, PendingIntent.
-                FLAG_UPDATE_CURRENT);
-    }
 
 
 
@@ -214,33 +163,11 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
 
             locale = new LatLng(holderLocation.getLatitude(), holderLocation.getLongitude());
 
-
             Marker addMarker;
             addMarker = mMap.addMarker(new MarkerOptions().position(locale).title("Actual Location"));
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(locale, 10));
 
         }
-
-    }
-
-
-    public void registerGeoFences() {
-
-        LocationServices.GeofencingApi.addGeofences(mGoogleApiClient, mGeofenceList,
-                getGeofencePendingIntent());
-
-
-        for(int i=0; i<mGeofenceList.size(); i++) {
-            finalGeofenceList.add(mGeofenceList.get(i));
-        }
-
-        mGeofenceList.clear();
-
-    }
-
-
-    public void deRegisterGeoFences() {
-        LocationServices.GeofencingApi.removeGeofences(mGoogleApiClient,getGeofencePendingIntent());
 
     }
 
@@ -261,7 +188,17 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
     public void onClick(View savedInstance) {
         switch (savedInstance.getId()) {
             case R.id.CreateSigniture:
-                //To do
+                if(homeLat != 0 && workLat != 0) {
+                    Intent intent = new Intent(this, MainService.class);
+                    intent.putExtra("Action", "Main");
+                    intent.putExtra("HomeLat", homeLat);
+                    intent.putExtra("HomeLon", homeLon);
+                    intent.putExtra("WorkLat", workLat);
+                    intent.putExtra("WorkLon", workLon);
+                    startService(intent);
+                 } else {
+                                Toast.makeText(this, "Please choose both loctaions", Toast.LENGTH_LONG).show();
+                }
                 break;
             case R.id.MarkerHomeButton:
                 Home = true;
@@ -275,14 +212,6 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
 
     }
 
-    public int getTime() {
-
-
-        Calendar cal = Calendar.getInstance();
-        int hourofday = cal.get(Calendar.HOUR_OF_DAY);
-
-        return hourofday;
-    }
 
 
 }

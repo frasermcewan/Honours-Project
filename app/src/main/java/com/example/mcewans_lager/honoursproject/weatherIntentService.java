@@ -20,7 +20,7 @@ import java.util.ArrayList;
 public class weatherIntentService extends IntentService {
 
     protected static final String TAG = "WeatherService";
-    private static String secondURL = "http://api.openweathermap.org/data/2.5/forecast?q=Miami&mode=xml&APPID=b33efea24270c8a29ff5678f3730ecb2";
+    private static String secondURL = "http://api.openweathermap.org/data/2.5/forecast?q=Glasgow&mode=xml&APPID=b33efea24270c8a29ff5678f3730ecb2";
     sortXML handle;
     ArrayList<String> PrepType = new ArrayList<String>();
     ArrayList<String> PrepVolume = new ArrayList<String>();

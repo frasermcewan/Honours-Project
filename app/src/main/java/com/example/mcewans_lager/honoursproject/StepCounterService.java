@@ -18,7 +18,6 @@ import android.widget.Toast;
  */
 public class StepCounterService extends Service implements SensorEventListener {
 
-    protected static final String TAG = "StepsTaken";
     private SensorManager sensorManager;
     private int steps;
     private boolean sCounter = false;
@@ -78,7 +77,6 @@ public class StepCounterService extends Service implements SensorEventListener {
 
     @Override
     public void onDestroy() {
-        Log.i(TAG, "onDestroy: ");
     Intent i = new Intent(this, MainService.class);
     i.putExtra("Action","Step");
     i.putExtra("Status","false");

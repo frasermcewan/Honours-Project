@@ -10,6 +10,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
+import android.util.Log;
 
 
 public class sendNotificationService extends IntentService {
@@ -32,10 +33,11 @@ public class sendNotificationService extends IntentService {
             transistionSetting = intent.getStringExtra("Details");
             stepValue = intent.getIntExtra("Steps", 0);
             sendGPSNotification(transistionSetting, stepValue);
+            Log.i(TAG, "notIntent: " + transistionSetting);
 
         } else if (ActionName.equals("Step")) {
-
-
+            stepValue = intent.getIntExtra("Steps", 0);
+            sendStepNotification(stepValue);
         } else if (ActionName.equals("Sig")) {
             stepStatus = intent.getStringExtra("Status");
             stepValue =  intent.getIntExtra("Steps", 0);
@@ -80,7 +82,7 @@ public class sendNotificationService extends IntentService {
     }
 
 
-    private void sendStepNotification(String notificationDetails) {
+    private void sendStepNotification(int stepValue) {
 
 
         Intent notificationIntent = new Intent(getApplicationContext(), RouteFinding.class);
@@ -109,8 +111,8 @@ public class sendNotificationService extends IntentService {
                 .setColor(Color.RED)
                 .setPriority(Notification.PRIORITY_HIGH)
                 .setVibrate(vibrate)
-                .setContentTitle(notificationDetails)
-                .setContentText("Notifcation")
+                .setContentTitle("Low Steps")
+                .setContentText("You have done only done" + stepValue + " Steps today")
                 .setContentIntent(notificationPendingIntent);
 
 
