@@ -114,7 +114,7 @@ public class sendNotificationService extends IntentService {
                 .setPriority(Notification.PRIORITY_HIGH)
                 .setVibrate(vibrate)
                 .setContentTitle("Low Steps")
-                .setContentText("You have done only done" + stepValue + " Steps today")
+                .setContentText("You have done only done " + stepValue + " Steps today")
                 .setContentIntent(notificationPendingIntent);
 
 
