@@ -40,7 +40,7 @@ public class weatherIntentService extends IntentService {
 
         while(!handle.done) {
             try {
-                Thread.sleep(5000);
+                Thread.sleep(3000);
             } catch (InterruptedException e) {
                 // Restore interrupt status.
                 Thread.currentThread().interrupt();

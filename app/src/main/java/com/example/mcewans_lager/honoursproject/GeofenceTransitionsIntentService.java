@@ -26,6 +26,7 @@ public class GeofenceTransitionsIntentService extends IntentService {
 
     protected static final String TAG = "GeofenceTransitions";
     String geofenceTransitionDetails;
+    String transistionString;
 
 
     public GeofenceTransitionsIntentService() {
@@ -65,6 +66,7 @@ public class GeofenceTransitionsIntentService extends IntentService {
         Intent intent = new Intent(this, MainService.class);
         intent.putExtra("Action","Geofence");
         intent.putExtra("Details", geofenceTransitionDetails);
+        intent.putExtra("Tran", returnTransistionString());
         startService(intent);
     }
 
@@ -75,6 +77,7 @@ public class GeofenceTransitionsIntentService extends IntentService {
             List<Geofence> triggeringGeofences) {
 
         String geofenceTransitionString = getTransitionString(geofenceTransition);
+        getTransistionString(geofenceTransitionString);
 
         // Get the Ids of each geofence that was triggered.
         ArrayList triggeringGeofencesIdsList = new ArrayList();
@@ -88,15 +91,25 @@ public class GeofenceTransitionsIntentService extends IntentService {
     }
 
 
+    private void getTransistionString(String in) {
+
+        transistionString = in;
+
+    }
+
+    private String returnTransistionString () {
+        return  transistionString;
+    }
+
 
     private String getTransitionString(int transitionType) {
         switch (transitionType) {
             case Geofence.GEOFENCE_TRANSITION_ENTER:
-                return "You have entered a registered GeoFence";
+                return "Enter";
             case Geofence.GEOFENCE_TRANSITION_EXIT:
-                return "You have exited a registered GeoFence";
+                return "Exit";
             case Geofence.GEOFENCE_TRANSITION_DWELL:
-                return "You have stayed in a GeoFence too long";
+                return "Dwell";
             default:
                 return "Unknown transistion";
         }

@@ -22,7 +22,17 @@ public class sendNotificationService extends IntentService {
     String transistionSetting;
     String stepStatus;
     String signitureName;
+    String rainType;
+    String rainVolume;
+    String wind;
+    String temp;
+    String weather;
+
     long[] vibrate = {300, 300, 300, 300, 300, 300};
+
+    long[] vibrate2 = {500, 500, 500, 500, 500, 500, 500, 500, 500};
+
+
 
     public sendNotificationService() {
         super(TAG);
@@ -45,6 +55,25 @@ public class sendNotificationService extends IntentService {
             signitureName = intent.getStringExtra("Name");
             sendCreateSignitureNotification(signitureName);
         } else if (ActionName.equals("Weather")) {
+            rainType = intent.getStringExtra("Type");
+            rainVolume = intent.getStringExtra("Volume");
+            wind = intent.getStringExtra("Wind");
+            temp = intent.getStringExtra("Temp");
+
+            Log.i(TAG, "onHandleIntent: " + rainType);
+            Log.i(TAG,"onHandleIntent: " + rainVolume);
+            Log.i(TAG, "onHandleIntent: " + wind);
+            Log.i(TAG, "onHandleIntent: " + temp);
+
+            if(rainType.equals("0")){
+                weather = "Good Weather";
+                rainVolume = "No Rain";
+
+            } else {
+                weather = "Rain";
+            }
+
+            sendWeatherNotification(weather, rainVolume, wind, temp);
 
         }
 
@@ -82,7 +111,11 @@ public class sendNotificationService extends IntentService {
 
         NotificationManager mNotificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        mNotificationManager.notify(0, builder.build());
+
+
+        Random random = new Random();
+        int m = random.nextInt();
+        mNotificationManager.notify(m, builder.build());
     }
 
 
@@ -127,13 +160,13 @@ public class sendNotificationService extends IntentService {
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
 
-        mNotificationManager.notify(0, builder.build());
+        Random random = new Random();
+        int m = random.nextInt();
+        mNotificationManager.notify(m, builder.build());
     }
 
 
     public void sendCreateSignitureNotification(String signitureName) {
-
-        Log.i(TAG, "sendCreateSignitureNotification: ");
 
         Intent notificationIntent = new Intent(getApplicationContext(), RouteFinding.class);
 
@@ -172,9 +205,52 @@ public class sendNotificationService extends IntentService {
 
         Random random = new Random();
         int m = random.nextInt();
-        Log.i(TAG, "sendCreateSignitureNotification: " + m);
-
         mNotificationManager.notify(m, builder.build());
+
+    }
+
+    public void sendWeatherNotification(String weather, String volume, String gale, String celsius) {
+
+        Intent notificationIntent = new Intent(getApplicationContext(), RouteFinding.class);
+
+
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+
+        stackBuilder.addParentStack(RouteFinding.class);
+
+
+        stackBuilder.addNextIntent(notificationIntent);
+
+
+        PendingIntent notificationPendingIntent =
+                stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+
+
+        builder.setSmallIcon(R.mipmap.ic_launcher)
+
+                .setLargeIcon(BitmapFactory.decodeResource(getResources(),
+                        R.mipmap.ic_launcher))
+                .setColor(Color.RED)
+                .setPriority(Notification.PRIORITY_HIGH)
+                .setVibrate(vibrate)
+                .setContentTitle(weather)
+                .setContentText(volume + " " + celsius+"c" + " Good time to be active")
+                .setContentIntent(notificationPendingIntent);
+
+
+        builder.setAutoCancel(true);
+
+        NotificationManager mNotificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+
+        Random random = new Random();
+        int m = random.nextInt();
+        mNotificationManager.notify(m, builder.build());
+
+
 
     }
 

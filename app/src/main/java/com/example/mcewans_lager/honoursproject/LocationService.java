@@ -197,6 +197,7 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
         distanceInMeters = Math.round(dist[0]);
 
         if (distanceInMeters < 10.00) {
+            Log.i(TAG, "onLocationChanged: " + distanceInMeters);
 
             if (currentAlt > previousAlt) {
                 holderSteps = holderSteps + (int) (distanceInMeters / 1.25);
@@ -208,6 +209,7 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
             }
 
             stepsTaken = stepsTaken + holderSteps;
+            Log.i(TAG, "onLocationChanged: " + stepsTaken);
 
             if (stepsTaken >= sendSteps) {
                 sendSteps = sendSteps + 50;

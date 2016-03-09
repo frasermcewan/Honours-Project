@@ -53,6 +53,7 @@ public class MainService extends Service {
     ArrayList<Signatures> workList = new ArrayList<>();
     private volatile boolean connected = false;
     String geoTransistion;
+    String transistionName;
     Bundle extras;
     boolean dailyStepWarning = false;
     DBhandler dbHandler;
@@ -77,7 +78,6 @@ public class MainService extends Service {
 
         startAlarm30();
         getTime();
-        getGPS();
         dropTable();
 
     }
@@ -99,7 +99,16 @@ public class MainService extends Service {
     }
 
 
-
+    public void addToDatabaseSmart (String locationName, String lat, String lon, String wifiList) {
+        Signatures submitToDatabase = new Signatures();
+        submitToDatabase.setLocationName(locationName);
+        submitToDatabase.setLat(lat);
+        submitToDatabase.setLon(lon);
+        submitToDatabase.setWIFI(wifiList);
+        dbHandler.addLocation(submitToDatabase);
+        getDatabaseSize();
+        signitureCreatedNotification(locationName);
+    }
 
 
     public void deleteFromDatabase(String locationName) {
@@ -144,6 +153,7 @@ public class MainService extends Service {
             if (ActionName.equals("Wifi")) {
                 ArrayListWrapper w = (ArrayListWrapper) intent.getSerializableExtra("list");
                 wiList = w.getItems();
+                Log.i(TAG, "onStartCommand: " + wiList);
                 getWeather();
                 setSigniture();
             } else if (ActionName.equals("Step")) {
@@ -159,14 +169,15 @@ public class MainService extends Service {
             } else if (ActionName.equals("GPS")) {
                 String holder = intent.getStringExtra("Ready");
                 if (holder.equals("No")) {
-                    getGPS();
+//                    getGPS();
                 } else if (holder.equals("Yes")) {
                     currentLat = intent.getDoubleExtra("Lat", 0.0);
                     currentLon = intent.getDoubleExtra("Lon", 0.0);
-                    Log.i(TAG, "onStartCommand:  " + currentLat);
-                    Log.i(TAG, "onStartCommand:  " + currentLon);
+                    Log.i(TAG, "onStart:  " + currentLat);
+                    Log.i(TAG, "onStart:  " + currentLon);
                 }
             } else if (ActionName.equals("Weather")) {
+
                 ArrayListWrapper w1 = (ArrayListWrapper) intent.getSerializableExtra("PrepType");
                 currentPrepType = w1.getItems();
                 ArrayListWrapper w2 = (ArrayListWrapper) intent.getSerializableExtra("PrepVolume");
@@ -177,12 +188,22 @@ public class MainService extends Service {
                 currenttempMax = w4.getItems();
                 ArrayListWrapper w5 = (ArrayListWrapper) intent.getSerializableExtra("tempMin");
                 currenttempMin = w5.getItems();
-                checkWeather();
             } else if (ActionName.equals("Connect")) {
                 connected = true;
-                getGPS();
+//                getGPS();
             } else if (ActionName.equals("Geofence")) {
                 geoTransistion = intent.getStringExtra("Details");
+                transistionName = intent.getStringExtra("Tran");
+
+
+                if (transistionName.equals("Dwell")) {
+                    String rainType = currentPrepType.get(0);
+                    String rainVolume = currentPrepVolume.get(0);
+                    String wind = currentWindSpeed.get(0);
+                    String lowTemp = currenttempMin.get(0);
+                    WeatherNotification(rainType, rainVolume, wind, lowTemp);
+                }
+
                 startGPSNotification();
             } else if (ActionName.equals("Main")) {
                 Log.i(TAG, "sentToMain: ");
@@ -204,16 +225,6 @@ public class MainService extends Service {
         }
         return START_STICKY;
     }
-
-
-
-    private void checkWeather() {
-
-
-    }
-
-
-
 
     private void checkDailySteps() {
         Log.i(TAG, "checkDailySteps: ");
@@ -275,12 +286,45 @@ public class MainService extends Service {
     }
 
     private void createHomeSigniture() {
+        int counter = 0;
+
+        for (int i = 0; i <homeList.size(); i++ ) {
+            for (int j = i + 1; j<homeList.size(); i++) {
+                if(homeList.get(i).getLat().equals(homeList.get(j).getLat())); {
+                    counter++;
+                }
+                if (counter >= 3) {
+                    addToDatabaseSmart("Home", homeList.get(i).getLat(), homeList.get(i).get_lon(), homeList.get(i).getWifi());
+                    addGeofence("Home", Double.parseDouble(homeList.get(i).getLat()), Double.parseDouble(homeList.get(i).get_lon()));
+                    break;
+                }
+            }
+        }
+
 
     }
 
     private void createWorkSigniture() {
+        int counter = 0;
+
+        for (int i = 0; i <workList.size(); i++ ) {
+            for (int j = i + 1; j<workList.size(); i++) {
+                if(workList.get(i).getLat().equals(workList.get(j).getLat())); {
+                    counter++;
+                }
+                if (counter >= 3) {
+                    addToDatabaseSmart("Work",workList.get(i).getLat(),workList.get(i).get_lon(),workList.get(i).getWifi());
+                    addGeofence("Work", Double.parseDouble(workList.get(i).getLat()), Double.parseDouble(workList.get(i).get_lon()));
+                    break;
+                }
+
+            }
+        }
+
 
     }
+
+
 
     private void startGPSNotification() {
         Intent startNot = new Intent(this, sendNotificationService.class);
@@ -300,11 +344,14 @@ public class MainService extends Service {
 
     }
 
-    private void goodWeatherNotification() {
-        getWeather();
+    private void WeatherNotification(String weathertype, String volume, String wind,  String temp) {
         Intent startNot = new Intent(this, sendNotificationService.class);
         startNot.putExtra("Action", "Weather");
-        startNot.putExtra("MaxTemp", currenttempMax.get(0));
+        startNot.putExtra("Type", weathertype);
+        startNot.putExtra("Volume", volume);
+        startNot.putExtra("Wind", wind);
+        startNot.putExtra("Temp", temp);
+        startService(startNot);
 
     }
 

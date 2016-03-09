@@ -22,6 +22,11 @@ public class wifiHolder extends BroadcastReceiver {
         context.startService(in);
 
 
+        Intent gp = new Intent(context, LocationService.class);
+        gp.putExtra("Action", "GPS");
+        context.startService(gp);
+
+
     }
 
 
