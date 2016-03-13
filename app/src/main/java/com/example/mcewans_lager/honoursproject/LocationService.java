@@ -66,8 +66,8 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
 
 
         mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(20000);
-        mLocationRequest.setFastestInterval(10000);
+        mLocationRequest.setInterval(60000);
+        mLocationRequest.setFastestInterval(30000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
 
@@ -247,8 +247,6 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
 
 
     private void buildGeofences(String id, double latitude, double longitude) {
-        Log.i(TAG, "buildGeofences: ");
-        
         mGeofenceList.add(new Geofence.Builder()
 
                 .setRequestId(id)
@@ -263,7 +261,6 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
                 .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
                         Geofence.GEOFENCE_TRANSITION_EXIT | Geofence.GEOFENCE_TRANSITION_DWELL)
                 .build());
-//        registerGeoFences();
     }
 
 
@@ -287,7 +284,6 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
 
 
     public void registerGeoFences() {
-        Log.i(TAG, "registerGeoFences: ");
         LocationServices.GeofencingApi.addGeofences(mGoogleApiClient, getGeofencingRequest(),
                 getGeofencePendingIntent());
     }
