@@ -121,7 +121,6 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
                     homeLon = touchLocation.longitude;
 
                     homeMarker = mMap.addMarker(new MarkerOptions().position(touchLocation).title("Home Location").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
-                    Home = false;
 
 
                 } else if (Work == true) {
@@ -135,7 +134,6 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
                     workLon = touchLocation.longitude;
 
                     workMarker = mMap.addMarker(new MarkerOptions().position(touchLocation).title("Work Location").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
-                    Work = false;
 
                 }
 
@@ -189,27 +187,37 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
     public void onClick(View savedInstance) {
         switch (savedInstance.getId()) {
             case R.id.CreateSigniture:
-                if(homeLat != 0 && workLat != 0) {
-                    Log.i(TAG, "onClick: ");
+                Log.i(TAG, "onClick: ");
+                if(Home && !Work) {
                     Intent intent = new Intent(this, MainService.class);
                     intent.putExtra("Action", "Main");
+                    intent.putExtra("Location","Home");
                     intent.putExtra("HomeLat", homeLat);
                     intent.putExtra("HomeLon", homeLon);
                     intent.putExtra("WorkLat", workLat);
                     intent.putExtra("WorkLon", workLon);
                     startService(intent);
-                 } else {
-                    Toast.makeText(this, "Please choose both locations", Toast.LENGTH_LONG).show();
+                 } else if (Work && !Home) {
+                    Intent inte = new Intent(this, MainService.class);
+                    inte.putExtra("Action", "Main");
+                    inte.putExtra("Location","Work");
+                    inte.putExtra("HomeLat", homeLat);
+                    inte.putExtra("HomeLon", homeLon);
+                    inte.putExtra("WorkLat", workLat);
+                    inte.putExtra("WorkLon", workLon);
+                    startService(inte);
+                } else if(homeLat == 0 && workLat == 0) {
+                    Toast.makeText(this, "Please choose one location", Toast.LENGTH_LONG).show();
                 }
                 break;
             case R.id.MarkerHomeButton:
                 Home = true;
+                Work = false;
                 break;
             case R.id.MarkerWorkButton:
                 Work = true;
+                Home = false;
                 break;
-
-
         }
 
     }

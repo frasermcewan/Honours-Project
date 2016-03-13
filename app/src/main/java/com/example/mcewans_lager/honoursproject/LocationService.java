@@ -15,6 +15,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.Geofence;
+import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
@@ -31,7 +32,6 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
     private GoogleApiClient mGoogleApiClient;
     private Boolean connected = false;
     protected static final String TAG = "GPSService";
-    PowerManager.WakeLock wakeLock;
     private LocationRequest mLocationRequest;
     private String Name;
     private double distanceInMeters = 0;
@@ -42,7 +42,7 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
     int stepsTaken = 0;
     int sendSteps = 0;
     Location initialLocation;
-    private PendingIntent mGeofencePendingIntent;
+    PendingIntent mGeofencePendingIntent;
     private List mGeofenceList;
     Bundle extras;
 
@@ -59,6 +59,7 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
                 .build();
 
 
+        mGeofencePendingIntent = null;
         mGeofenceList = new ArrayList<Geofence>();
         mGoogleApiClient.connect();
         serviceCheck();
@@ -88,20 +89,17 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
-        if (intent.getExtras() != null) {
 
-            extras = intent.getExtras();
-        }
-
-        if (extras != null) {
 
             String ActionName = intent.getStringExtra("Action");
+        Log.i(TAG, "onStartCommand: " + ActionName);
+
 
             if (ActionName.equals("Normal")) {
                 stepsTaken = 0;
                 sendSteps = 50;
             } else if (ActionName.equals("GPS")) {
-                getLocation();
+                Log.i(TAG, "onStartCommand: Requested GPS ");
 
             } else if (ActionName.equals("AddFence")) {
                 Log.i(TAG, "AddFence Reached: ");
@@ -110,11 +108,12 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
                     recievedLat = intent.getDoubleExtra("Lat", 0.0);
                     recievedLon = intent.getDoubleExtra("Lon", 0.0);
                     buildGeofences(Name, recievedLat, recievedLon);
+                    registerGeoFences();
 
             } else if (ActionName.equals("DeleteGeofences")) {
 
             }
-        }
+
         return START_STICKY;
     }
 
@@ -131,6 +130,7 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
         sendConnection();
         connected = true;
         initialLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+       getLocation();
 
 
 
@@ -138,7 +138,7 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
 
 
     public void getLocation() {
-
+        Log.i(TAG, "getLocation: ");
         if (connected) {
             returnLat = initialLocation.getLatitude();
             returnLon = initialLocation.getLongitude();
@@ -146,9 +146,10 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
         } else {
             sendGPSError();
         }
-
-
     }
+
+
+
 
     private void sendGPSError() {
         Intent gps = new Intent(this, MainService.class);
@@ -197,7 +198,7 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
         distanceInMeters = Math.round(dist[0]);
 
         if (distanceInMeters < 10.00) {
-            Log.i(TAG, "onLocationChanged: " + distanceInMeters);
+
 
             if (currentAlt > previousAlt) {
                 holderSteps = holderSteps + (int) (distanceInMeters / 1.25);
@@ -209,13 +210,8 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
             }
 
             stepsTaken = stepsTaken + holderSteps;
-            Log.i(TAG, "onLocationChanged: " + stepsTaken);
-
-            if (stepsTaken >= sendSteps) {
-                sendSteps = sendSteps + 50;
-                sendSteps();
-            }
-
+            sendSteps();
+            sendGPS();
             initialLocation = location;
         }
 
@@ -238,7 +234,10 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
     }
 
     public void sendGPS() {
+        Log.i(TAG, "sendGPS: Sending to Main " );
         Intent gps = new Intent(this, MainService.class);
+        Log.i(TAG, "sendGPSLat: " + returnLat);
+        Log.i(TAG, "sendGPSLon: " + returnLon);
         gps.putExtra("Action", "GPS");
         gps.putExtra("Ready", "Yes");
         gps.putExtra("Lat", returnLat);
@@ -264,9 +263,16 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
                 .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
                         Geofence.GEOFENCE_TRANSITION_EXIT | Geofence.GEOFENCE_TRANSITION_DWELL)
                 .build());
-        registerGeoFences();
+//        registerGeoFences();
     }
 
+
+
+    private GeofencingRequest getGeofencingRequest() {
+        GeofencingRequest.Builder builder = new GeofencingRequest.Builder();
+        builder.addGeofences(mGeofenceList);
+        return builder.build();
+    }
 
     private PendingIntent getGeofencePendingIntent() {
 
@@ -282,10 +288,8 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
 
     public void registerGeoFences() {
         Log.i(TAG, "registerGeoFences: ");
-        LocationServices.GeofencingApi.addGeofences(mGoogleApiClient, mGeofenceList,
+        LocationServices.GeofencingApi.addGeofences(mGoogleApiClient, getGeofencingRequest(),
                 getGeofencePendingIntent());
-        mGeofenceList.clear();
-
     }
 
 

@@ -47,7 +47,7 @@ public class WifiIntentService extends IntentService {
         mainWifi.startScan();
 
         try {
-            Thread.sleep(4000);
+            Thread.sleep(5000);
         } catch (InterruptedException e) {
             // Restore interrupt status.
             Thread.currentThread().interrupt();

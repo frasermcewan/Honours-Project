@@ -21,6 +21,7 @@ public class sendNotificationService extends IntentService {
     int stepValue;
     String transistionSetting;
     String stepStatus;
+    String message;
     String signitureName;
     String rainType;
     String rainVolume;
@@ -59,21 +60,20 @@ public class sendNotificationService extends IntentService {
             rainVolume = intent.getStringExtra("Volume");
             wind = intent.getStringExtra("Wind");
             temp = intent.getStringExtra("Temp");
-
-            Log.i(TAG, "onHandleIntent: " + rainType);
-            Log.i(TAG,"onHandleIntent: " + rainVolume);
-            Log.i(TAG, "onHandleIntent: " + wind);
-            Log.i(TAG, "onHandleIntent: " + temp);
+            stepValue = intent.getIntExtra("Steps", 0);
 
             if(rainType.equals("0")){
                 weather = "Good Weather";
                 rainVolume = "No Rain";
+                message = "Good time to be active";
+
 
             } else {
                 weather = "Rain";
+                message = "Bad weather, Still try";
             }
 
-            sendWeatherNotification(weather, rainVolume, wind, temp);
+            sendWeatherNotification(weather, rainVolume, wind, temp, message, stepValue);
 
         }
 
@@ -209,7 +209,7 @@ public class sendNotificationService extends IntentService {
 
     }
 
-    public void sendWeatherNotification(String weather, String volume, String gale, String celsius) {
+    public void sendWeatherNotification(String weather, String volume, String gale, String celsius, String Message, int stepV) {
 
         Intent notificationIntent = new Intent(getApplicationContext(), RouteFinding.class);
 
@@ -235,8 +235,8 @@ public class sendNotificationService extends IntentService {
                 .setColor(Color.RED)
                 .setPriority(Notification.PRIORITY_HIGH)
                 .setVibrate(vibrate)
-                .setContentTitle(weather)
-                .setContentText(volume + " " + celsius+"c" + " Good time to be active")
+                .setContentTitle(weather +" " + Message)
+                .setContentText("Steps " + stepV + "  "  + celsius+"c ")
                 .setContentIntent(notificationPendingIntent);
 
 
