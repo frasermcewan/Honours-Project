@@ -53,13 +53,13 @@ public class MainService extends Service {
     ArrayList<String> currenttempMin = new ArrayList<String>();
     ArrayList<Signatures> homeList = new ArrayList<>();
     ArrayList<Signatures> workList = new ArrayList<>();
-    private volatile boolean connected = false;
     String geoTransistion;
     String transistionName;
     boolean dailyStepWarning = false;
     DBhandler dbHandler;
     boolean sigCreatedHome = false;
     boolean sigCreatedWork = false;
+    boolean exitStepWarning = false;
 
 
 
@@ -144,6 +144,8 @@ public class MainService extends Service {
         pIntent = PendingIntent.getBroadcast(this, wifiHolder.REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         alarm30 = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
         alarm30.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), AlarmManager.INTERVAL_HALF_HOUR, pIntent);
+
+
     }
 
     public void startDailyAlarm() {
@@ -153,105 +155,112 @@ public class MainService extends Service {
         dayAlarm.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), AlarmManager.INTERVAL_DAY, pIntent);
     }
 
-//    public void runInForeground() {
-//        Notification notification = new NotificationCompat.Builder(this)
-//                .setContentTitle("Truiton Music Player")
-//                .setTicker("Truiton Music Player")
-//                .setContentText("My Music")
-//                .setSmallIcon(R.drawable.ic_launcher)
-//                .setLargeIcon(
-//                        Bitmap.createScaledBitmap(icon, 128, 128, false))
-//                .setContentIntent(pendingIntent)
-//                .setOngoing(true);
-//        startForeground(20,
-//                notification);
-//    }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.i(TAG, "onStartCommand: Reached");
+
+        Bundle bundle = intent.getExtras();
+
+        if (bundle != null) {
+
+            if (intent.hasExtra("Action")) {
 
 
-        if(intent.hasExtra("Action")) {
+                String ActionName = intent.getStringExtra("Action");
+                if (ActionName.equals("Wifi")) {
+                    ArrayListWrapper w = (ArrayListWrapper) intent.getSerializableExtra("list");
+                    wiList = w.getItems();
+                    getWeather();
+                    setSigniture();
+                } else if (ActionName.equals("Step")) {
+                    String stepStatus = intent.getStringExtra("Status");
+                    if (stepStatus.equals("true")) {
+                    } else if (stepStatus.equals("false")) {
+                        startGPSSteps();
+                    }
+                } else if (ActionName.equals("StepsTaken")) {
+                    stepsTaken = intent.getIntExtra("StepCount", 0);
+                    checkDailySteps(getTime());
+                } else if (ActionName.equals("GPS")) {
+                    Log.i(TAG, "GPSMain: ");
+                    String holder = intent.getStringExtra("Ready");
+                    if (holder.equals("Yes")) {
+                        currentLat = intent.getDoubleExtra("Lat", 0.0);
+                        currentLon = intent.getDoubleExtra("Lon", 0.0);
+                        Log.i(TAG, "LAT  " + currentLat);
+                        Log.i(TAG, "LON  " + currentLon);
+                    }
+                } else if (ActionName.equals("Weather")) {
 
+                    ArrayListWrapper w1 = (ArrayListWrapper) intent.getSerializableExtra("PrepType");
+                    currentPrepType = w1.getItems();
+                    ArrayListWrapper w2 = (ArrayListWrapper) intent.getSerializableExtra("PrepVolume");
+                    currentPrepVolume = w2.getItems();
+                    ArrayListWrapper w3 = (ArrayListWrapper) intent.getSerializableExtra("WindSpeed");
+                    currentWindSpeed = w3.getItems();
+                    ArrayListWrapper w4 = (ArrayListWrapper) intent.getSerializableExtra("tempMax");
+                    currenttempMax = w4.getItems();
+                    ArrayListWrapper w5 = (ArrayListWrapper) intent.getSerializableExtra("tempMin");
+                    currenttempMin = w5.getItems();
+                } else if (ActionName.equals("Geofence")) {
+                    geoTransistion = intent.getStringExtra("Details");
+                    transistionName = intent.getStringExtra("Tran");
+                    if (transistionName.equals("Dwell")) {
+                        startStepsNotifcaion();
+                        String rainType = currentPrepType.get(0);
+                        String rainVolume = currentPrepVolume.get(0);
+                        String wind = currentWindSpeed.get(0);
+                        String lowTemp = currenttempMin.get(0);
+                        WeatherNotification(rainType, rainVolume, wind, lowTemp);
+                        checkDailySteps(getTime());
+                    } else if (transistionName.equals("Exit")) {
+                        startStepsNotifcaion();
+                        String rainType = currentPrepType.get(0);
+                        String rainVolume = currentPrepVolume.get(0);
+                        String wind = currentWindSpeed.get(0);
+                        String lowTemp = currenttempMin.get(0);
+                        WeatherNotification(rainType, rainVolume, wind, lowTemp);
+                        checkDailySteps(getTime());
+                    }
+                    startGPSNotification();
+                } else if (ActionName.equals("Main")) {
+                    String Location = intent.getStringExtra("Location");
+                    if (Location.equals("Home")) {
+                        double homeLat = intent.getDoubleExtra("HomeLat", 0);
+                        double homeLon = intent.getDoubleExtra("HomeLon", 0);
+                        homeLat = smoothDoubles(homeLat);
+                        homeLon = smoothDoubles(homeLon);
+                        addGeofence("Home", homeLat, homeLon);
+                        addToDatabase("Home", homeLat, homeLon, wiList);
+                    } else if (Location.equals("Work")) {
+                        double workLat = intent.getDoubleExtra("WorkLat", 0);
+                        double workLon = intent.getDoubleExtra("WorkLon", 0);
+                        addGeofence("Work", workLat, workLon);
+                        workLat = smoothDoubles(workLat);
+                        workLon = smoothDoubles(workLon);
+                        addToDatabase("Work", workLat, workLon, wiList);
+                    }
 
-            String ActionName = intent.getStringExtra("Action");
-            if (ActionName.equals("Wifi")) {
-                ArrayListWrapper w = (ArrayListWrapper) intent.getSerializableExtra("list");
-                wiList = w.getItems();
-                getWeather();
-                setSigniture();
-            } else if (ActionName.equals("Step")) {
-                String stepStatus = intent.getStringExtra("Status");
-                if (stepStatus.equals("true")) {
-                } else if (stepStatus.equals("false")) {
-                    startGPSSteps();
-                }
-            } else if (ActionName.equals("StepsTaken")) {
-                stepsTaken = intent.getIntExtra("StepCount", 0);
-                checkDailySteps();
-            } else if (ActionName.equals("GPS")) {
-                Log.i(TAG, "GPSMain: ");
-                String holder = intent.getStringExtra("Ready");
-                  if (holder.equals("Yes")) {
-                    currentLat = intent.getDoubleExtra("Lat", 0.0);
-                    currentLon = intent.getDoubleExtra("Lon", 0.0);
-                    Log.i(TAG, "LAT  " + currentLat);
-                    Log.i(TAG, "LON  " + currentLon);
-                }
-            } else if (ActionName.equals("Weather")) {
-
-                ArrayListWrapper w1 = (ArrayListWrapper) intent.getSerializableExtra("PrepType");
-                currentPrepType = w1.getItems();
-                ArrayListWrapper w2 = (ArrayListWrapper) intent.getSerializableExtra("PrepVolume");
-                currentPrepVolume = w2.getItems();
-                ArrayListWrapper w3 = (ArrayListWrapper) intent.getSerializableExtra("WindSpeed");
-                currentWindSpeed = w3.getItems();
-                ArrayListWrapper w4 = (ArrayListWrapper) intent.getSerializableExtra("tempMax");
-                currenttempMax = w4.getItems();
-                ArrayListWrapper w5 = (ArrayListWrapper) intent.getSerializableExtra("tempMin");
-                currenttempMin = w5.getItems();
-            } else if (ActionName.equals("Geofence")) {
-                geoTransistion = intent.getStringExtra("Details");
-                transistionName = intent.getStringExtra("Tran");
-                if (transistionName.equals("Dwell")) {
-                    String rainType = currentPrepType.get(0);
-                    String rainVolume = currentPrepVolume.get(0);
-                    String wind = currentWindSpeed.get(0);
-                    String lowTemp = currenttempMin.get(0);
-                    WeatherNotification(rainType, rainVolume, wind, lowTemp);
-                }
-
-                startGPSNotification();
-            } else if (ActionName.equals("Main")) {
-                String Location = intent.getStringExtra("Location");
-                if (Location.equals("Home")) {
-                    double homeLat = intent.getDoubleExtra("HomeLat", 0);
-                    double homeLon = intent.getDoubleExtra("HomeLon", 0);
-                    homeLat = smoothDoubles(homeLat);
-                    homeLon = smoothDoubles(homeLon);
-                    addGeofence("Home", homeLat, homeLon);
-                    addToDatabase("Home", homeLat, homeLon, wiList);
-                } else if (Location.equals("Work")) {
-                    double workLat = intent.getDoubleExtra("WorkLat", 0);
-                    double workLon = intent.getDoubleExtra("WorkLon", 0);
-                    addGeofence("Work", workLat, workLon);
-                    workLat = smoothDoubles(workLat);
-                    workLon = smoothDoubles(workLon);
-                    addToDatabase("Work", workLat, workLon, wiList);
                 }
 
             }
-
         }
-        return START_STICKY;
+//       return START_STICKY;
+//        return START_NOT_STICKY;
+       return START_REDELIVER_INTENT;
     }
 
-    private void checkDailySteps() {
-        if(!dailyStepWarning && getTime() > 12) {
+    private void checkDailySteps(Double time) {
+        if(!dailyStepWarning && time > 12) {
             if (stepsTaken < 1000) {
-                startLowStepsNotifcaion();
+                startStepsNotifcaion();
+                dailyStepWarning = true;
+            } else if (!exitStepWarning && time > 17){
+                startStepsNotifcaion();
+                exitStepWarning = true;
             }
-        } dailyStepWarning = true;
+        }
 
     }
 
@@ -263,12 +272,6 @@ public class MainService extends Service {
         holderSig.setWIFI(convertWifitoString(wiList));
         holderSig.setTime(getTime());
         dataHolder.add(holderSig);
-
-        Log.i(TAG, "setSigniture: " + holderSig.getLat());
-        Log.i(TAG, "setSigniture: " + holderSig.get_lon());
-        Log.i(TAG, "setSigniture: " + holderSig.getTime());
-
-
         checkForScanLimit();
     }
 
@@ -310,16 +313,16 @@ public class MainService extends Service {
     }
 
     private void createHomeSigniture() {
-        Log.i(TAG, "createHomeSigniture:  HERE");
         int counter = 0;
-
 
         for (int i = 0; i <homeList.size(); i++ ) {
             for (int j = i + 1; j<homeList.size(); j++) {
-                if(homeList.get(i).getLat().equals(homeList.get(j).getLat())); {
+                if(homeList.get(i).getLat().equals(homeList.get(j).getLat())){
+                    counter++;
+                } else if (homeList.get(i).getWifi().equals(homeList.get(j).getWifi())) {
                     counter++;
                 }
-                if (counter >= 3 && !sigCreatedHome) {
+                if (counter >= 6 && !sigCreatedHome) {
                     addToDatabaseSmart("Home", homeList.get(i).getLat(), homeList.get(i).get_lon(), homeList.get(i).getWifi());
                     addGeofence("Home", Double.parseDouble(homeList.get(i).getLat()), Double.parseDouble(homeList.get(i).get_lon()));
                     sigCreatedHome = true;
@@ -332,13 +335,16 @@ public class MainService extends Service {
     }
 
     private void createWorkSigniture() {
-        Log.i(TAG, "createWorkSigniture: THERE");
         int counter = 0;
 
         for (int i = 0; i <workList.size(); i++ ) {
             for (int j = i+ 1; j<workList.size(); j++) {
-                if (workList.get(i).getLat().equals(workList.get(j).getLat())) ;
-                if (!sigCreatedWork) {
+                if (workList.get(i).getLat().equals(workList.get(j).getLat())) {
+                    counter ++;
+                } else if (workList.get(i).getWifi().equals(workList.get(j).getWifi())) {
+                counter++;
+            }
+                if (counter >=6 && !sigCreatedWork) {
                     addToDatabaseSmart("Work", workList.get(i).getLat(), workList.get(i).get_lon(), workList.get(i).getWifi());
                     addGeofence("Work", Double.parseDouble(workList.get(i).getLat()), Double.parseDouble(workList.get(i).get_lon()));
                     sigCreatedWork = true;
@@ -362,7 +368,7 @@ public class MainService extends Service {
 
     }
 
-    private void startLowStepsNotifcaion() {
+    private void startStepsNotifcaion() {
         Intent startNot = new Intent(this, sendNotificationService.class);
         startNot.putExtra("Action", "Step");
         startNot.putExtra("Steps", stepsTaken);

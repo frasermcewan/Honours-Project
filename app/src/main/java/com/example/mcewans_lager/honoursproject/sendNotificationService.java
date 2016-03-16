@@ -45,8 +45,7 @@ public class sendNotificationService extends IntentService {
 
         if (ActionName.equals("GPSNot")) {
             transistionSetting = intent.getStringExtra("Details");
-            stepValue = intent.getIntExtra("Steps", 0);
-            sendGPSNotification(transistionSetting, stepValue);
+            sendGPSNotification(transistionSetting);
             Log.i(TAG, "notIntent: " + transistionSetting);
 
         } else if (ActionName.equals("Step")) {
@@ -60,7 +59,7 @@ public class sendNotificationService extends IntentService {
             rainVolume = intent.getStringExtra("Volume");
             wind = intent.getStringExtra("Wind");
             temp = intent.getStringExtra("Temp");
-            stepValue = intent.getIntExtra("Steps", 0);
+
 
             if(rainType.equals("0")){
                 weather = "Good Weather";
@@ -70,7 +69,7 @@ public class sendNotificationService extends IntentService {
 
             } else {
                 weather = "Rain";
-                message = "Bad weather, Still try";
+                message = "Bad weather, Still try to be Active";
             }
 
             sendWeatherNotification(weather, rainVolume, wind, temp, message, stepValue);
@@ -80,7 +79,18 @@ public class sendNotificationService extends IntentService {
 
     }
 
-    private void sendGPSNotification(String notificationDetails, int stepValue) {
+    private void sendGPSNotification(String notificationDetails) {
+
+        String Mess = "";
+
+        if (notificationDetails.equals("Exit: Home") || notificationDetails.equals("Exit: Work")) {
+            Mess = "Great time to be active";
+        } else if (notificationDetails.equals("Dwell: Home") || notificationDetails.equals("Dwell: Work")) {
+            Mess = "Great time to be active";
+        } else {
+            Mess = "Location Update";
+        }
+
         Intent notificationIntent = new Intent(getApplicationContext(), RouteFinding.class);
 
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
@@ -103,7 +113,7 @@ public class sendNotificationService extends IntentService {
                 .setVibrate(vibrate)
                 .setPriority(Notification.PRIORITY_HIGH)
                 .setContentTitle(notificationDetails)
-                .setContentText("Your total steps after this transistion " + stepValue)
+                .setContentText(Mess)
                 .setContentIntent(notificationPendingIntent);
 
 
@@ -145,11 +155,11 @@ public class sendNotificationService extends IntentService {
 
                 .setLargeIcon(BitmapFactory.decodeResource(getResources(),
                         R.mipmap.ic_launcher))
-                .setColor(Color.RED)
+                .setColor(Color.BLUE)
                 .setPriority(Notification.PRIORITY_HIGH)
                 .setVibrate(vibrate)
-                .setContentTitle("Low Steps")
-                .setContentText("You have done only done " + stepValue + " Steps today")
+                .setContentTitle("Steps today")
+                .setContentText("You have done " + stepValue + " Steps today")
                 .setContentIntent(notificationPendingIntent);
 
 
@@ -189,7 +199,7 @@ public class sendNotificationService extends IntentService {
 
                 .setLargeIcon(BitmapFactory.decodeResource(getResources(),
                         R.mipmap.ic_launcher))
-                .setColor(Color.RED)
+                .setColor(Color.MAGENTA)
                 .setPriority(Notification.PRIORITY_HIGH)
                 .setVibrate(vibrate)
                 .setContentTitle(signitureName)
@@ -232,11 +242,11 @@ public class sendNotificationService extends IntentService {
 
                 .setLargeIcon(BitmapFactory.decodeResource(getResources(),
                         R.mipmap.ic_launcher))
-                .setColor(Color.RED)
+                .setColor(Color.YELLOW)
                 .setPriority(Notification.PRIORITY_HIGH)
                 .setVibrate(vibrate)
-                .setContentTitle(weather +" " + Message)
-                .setContentText("Steps " + stepV + "  "  + celsius+"c ")
+                .setContentTitle(weather +" " + celsius)
+                .setContentText(Message)
                 .setContentIntent(notificationPendingIntent);
 
 

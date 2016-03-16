@@ -89,10 +89,13 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
+    Bundle bundle = intent.getExtras();
+
+        if(bundle!=null) {
 
 
             String ActionName = intent.getStringExtra("Action");
-        Log.i(TAG, "onStartCommand: " + ActionName);
+            Log.i(TAG, "onStartCommand: " + ActionName);
 
 
             if (ActionName.equals("Normal")) {
@@ -104,17 +107,19 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
             } else if (ActionName.equals("AddFence")) {
                 Log.i(TAG, "AddFence Reached: ");
 
-                    Name = intent.getStringExtra("Name");
-                    recievedLat = intent.getDoubleExtra("Lat", 0.0);
-                    recievedLon = intent.getDoubleExtra("Lon", 0.0);
-                    buildGeofences(Name, recievedLat, recievedLon);
-                    registerGeoFences();
+                Name = intent.getStringExtra("Name");
+                recievedLat = intent.getDoubleExtra("Lat", 0.0);
+                recievedLon = intent.getDoubleExtra("Lon", 0.0);
+                buildGeofences(Name, recievedLat, recievedLon);
+                registerGeoFences();
 
             } else if (ActionName.equals("DeleteGeofences")) {
 
             }
+        }
 
-        return START_STICKY;
+//        return START_STICKY;
+        return START_REDELIVER_INTENT;
     }
 
 
