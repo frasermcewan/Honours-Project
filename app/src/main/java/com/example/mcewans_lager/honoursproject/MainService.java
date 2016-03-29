@@ -1,30 +1,16 @@
 package com.example.mcewans_lager.honoursproject;
 
 import android.app.AlarmManager;
-import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Bitmap;
-import android.location.Location;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.support.annotation.Nullable;
-import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
-
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationListener;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationServices;
 
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
@@ -62,9 +48,6 @@ public class MainService extends Service {
     boolean exitStepWarning = false;
 
 
-
-
-
     @Override
     public void onCreate() {
         super.onCreate();
@@ -83,37 +66,38 @@ public class MainService extends Service {
 //        getGPS();
 //        startAlarm30();
         dropTable();
+        getDatabaseSize();
 
     }
 
 
+    public void checkLocation() {
+        ArrayList<Signatures> size = new ArrayList<>();
+        size = dbHandler.returnAllLocation();
+    }
 
-
-
-    public void dropTable () {
+    public void dropTable() {
         dbHandler.methodAccess();
     }
 
-    public void addToDatabase (String locationName, double lat, double lon, ArrayList<String> wifiList) {
+    public void addToDatabase(String locationName, double lat, double lon, ArrayList<String> wifiList) {
         Signatures submitToDatabase = new Signatures();
         submitToDatabase.setLocationName(locationName);
         submitToDatabase.setLat(Double.toString(smoothDoubles(lat)));
         submitToDatabase.setLon(Double.toString(smoothDoubles(lon)));
         submitToDatabase.setWIFI(convertWifitoString(wifiList));
         dbHandler.addLocation(submitToDatabase);
-        getDatabaseSize();
         signitureCreatedNotification(locationName);
     }
 
 
-    public void addToDatabaseSmart (String locationName, String lat, String lon, String wifiList) {
+    public void addToDatabaseSmart(String locationName, String lat, String lon, String wifiList) {
         Signatures submitToDatabase = new Signatures();
         submitToDatabase.setLocationName(locationName);
         submitToDatabase.setLat(lat);
         submitToDatabase.setLon(lon);
         submitToDatabase.setWIFI(wifiList);
         dbHandler.addLocation(submitToDatabase);
-//        getDatabaseSize();
         signitureCreatedNotification(locationName);
     }
 
@@ -134,14 +118,14 @@ public class MainService extends Service {
 
     public double smoothDoubles(double input) {
         Double storeDouble = new BigDecimal(input)
-                .setScale(3,BigDecimal.ROUND_CEILING)
+                .setScale(3, BigDecimal.ROUND_CEILING)
                 .doubleValue();
         return storeDouble;
     }
 
     public void startAlarm30() {
-        Intent intent = new Intent(this, wifiHolder.class);
-        pIntent = PendingIntent.getBroadcast(this, wifiHolder.REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        Intent intent = new Intent(this, alarmHolder.class);
+        pIntent = PendingIntent.getBroadcast(this, alarmHolder.REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         alarm30 = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
         alarm30.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), AlarmManager.INTERVAL_HALF_HOUR, pIntent);
 
@@ -149,8 +133,8 @@ public class MainService extends Service {
     }
 
     public void startDailyAlarm() {
-        Intent intent = new Intent(this, wifiHolder.class);
-        final PendingIntent pIntent = PendingIntent.getBroadcast(this, wifiHolder.REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        Intent intent = new Intent(this, alarmHolder.class);
+        final PendingIntent pIntent = PendingIntent.getBroadcast(this, alarmHolder.REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         dayAlarm = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
         dayAlarm.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), AlarmManager.INTERVAL_DAY, pIntent);
     }
@@ -183,13 +167,10 @@ public class MainService extends Service {
                     stepsTaken = intent.getIntExtra("StepCount", 0);
                     checkDailySteps(getTime());
                 } else if (ActionName.equals("GPS")) {
-                    Log.i(TAG, "GPSMain: ");
                     String holder = intent.getStringExtra("Ready");
                     if (holder.equals("Yes")) {
                         currentLat = intent.getDoubleExtra("Lat", 0.0);
                         currentLon = intent.getDoubleExtra("Lon", 0.0);
-                        Log.i(TAG, "LAT  " + currentLat);
-                        Log.i(TAG, "LON  " + currentLon);
                     }
                 } else if (ActionName.equals("Weather")) {
 
@@ -246,17 +227,17 @@ public class MainService extends Service {
 
             }
         }
-//       return START_STICKY;
+        return START_STICKY;
 //        return START_NOT_STICKY;
-       return START_REDELIVER_INTENT;
+        //   return START_REDELIVER_INTENT;
     }
 
     private void checkDailySteps(Double time) {
-        if(!dailyStepWarning && time > 12) {
+        if (!dailyStepWarning && time > 12) {
             if (stepsTaken < 1000) {
                 startStepsNotifcaion();
                 dailyStepWarning = true;
-            } else if (!exitStepWarning && time > 17){
+            } else if (!exitStepWarning && time > 17) {
                 startStepsNotifcaion();
                 exitStepWarning = true;
             }
@@ -294,7 +275,7 @@ public class MainService extends Service {
             for (int i = 0; i < dataHolder.size(); i++) {
                 getSig = dataHolder.get(i);
                 Log.i(TAG, "checkForScanLimit: " + getSig.getTime());
-                if(getSig.getTime() < 9 || getSig.getTime() > 19) {
+                if (getSig.getTime() < 9 || getSig.getTime() > 19) {
                     homeList.add(getSig);
                 } else if (getSig.getTime() > 9 || getSig.getTime() < 19) {
                     workList.add(getSig);
@@ -307,7 +288,7 @@ public class MainService extends Service {
             createWorkSigniture();
             alarm30.cancel(pIntent);
             startDailyAlarm();
-       }
+        }
 
 
     }
@@ -315,9 +296,9 @@ public class MainService extends Service {
     private void createHomeSigniture() {
         int counter = 0;
 
-        for (int i = 0; i <homeList.size(); i++ ) {
-            for (int j = i + 1; j<homeList.size(); j++) {
-                if(homeList.get(i).getLat().equals(homeList.get(j).getLat())){
+        for (int i = 0; i < homeList.size(); i++) {
+            for (int j = i + 1; j < homeList.size(); j++) {
+                if (homeList.get(i).getLat().equals(homeList.get(j).getLat())) {
                     counter++;
                 } else if (homeList.get(i).getWifi().equals(homeList.get(j).getWifi())) {
                     counter++;
@@ -337,14 +318,14 @@ public class MainService extends Service {
     private void createWorkSigniture() {
         int counter = 0;
 
-        for (int i = 0; i <workList.size(); i++ ) {
-            for (int j = i+ 1; j<workList.size(); j++) {
+        for (int i = 0; i < workList.size(); i++) {
+            for (int j = i + 1; j < workList.size(); j++) {
                 if (workList.get(i).getLat().equals(workList.get(j).getLat())) {
-                    counter ++;
+                    counter++;
                 } else if (workList.get(i).getWifi().equals(workList.get(j).getWifi())) {
-                counter++;
-            }
-                if (counter >=6 && !sigCreatedWork) {
+                    counter++;
+                }
+                if (counter >= 6 && !sigCreatedWork) {
                     addToDatabaseSmart("Work", workList.get(i).getLat(), workList.get(i).get_lon(), workList.get(i).getWifi());
                     addGeofence("Work", Double.parseDouble(workList.get(i).getLat()), Double.parseDouble(workList.get(i).get_lon()));
                     sigCreatedWork = true;
@@ -352,11 +333,8 @@ public class MainService extends Service {
                 }
             }
 
-            }
         }
-
-
-
+    }
 
 
     private void startGPSNotification() {
@@ -376,7 +354,7 @@ public class MainService extends Service {
 
     }
 
-    private void WeatherNotification(String weathertype, String volume, String wind,  String temp) {
+    private void WeatherNotification(String weathertype, String volume, String wind, String temp) {
         Intent startNot = new Intent(this, sendNotificationService.class);
         startNot.putExtra("Action", "Weather");
         startNot.putExtra("Type", weathertype);
@@ -406,10 +384,10 @@ public class MainService extends Service {
     }
 
     private void getGPS() {
-            Log.i(TAG, "getGPS: ");
-            Intent getGPS = new Intent(this, LocationService.class);
-            getGPS.putExtra("Action", "GPS");
-            startService(getGPS);
+        Log.i(TAG, "getGPS: ");
+        Intent getGPS = new Intent(this, LocationService.class);
+        getGPS.putExtra("Action", "GPS");
+        startService(getGPS);
 
     }
 

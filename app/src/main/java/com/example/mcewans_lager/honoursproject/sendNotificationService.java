@@ -15,6 +15,12 @@ import android.util.Log;
 import java.util.Random;
 
 
+/**
+ * This class is responsible for sending notifications when the main service tells it to.
+ * It has a variety of different notificiations that it can choose to send depending on what
+ * the main service tell is to do
+ */
+
 public class sendNotificationService extends IntentService {
 
     protected static final String TAG = "NotificationService";
@@ -32,7 +38,6 @@ public class sendNotificationService extends IntentService {
     long[] vibrate = {300, 300, 300, 300, 300, 300};
 
     long[] vibrate2 = {500, 500, 500, 500, 500, 500, 500, 500, 500};
-
 
 
     public sendNotificationService() {
@@ -61,7 +66,7 @@ public class sendNotificationService extends IntentService {
             temp = intent.getStringExtra("Temp");
 
 
-            if(rainType.equals("0")){
+            if (rainType.equals("0")) {
                 weather = "Good Weather";
                 rainVolume = "No Rain";
                 message = "Good time to be active";
@@ -245,7 +250,7 @@ public class sendNotificationService extends IntentService {
                 .setColor(Color.YELLOW)
                 .setPriority(Notification.PRIORITY_HIGH)
                 .setVibrate(vibrate)
-                .setContentTitle(weather +" " + celsius)
+                .setContentTitle(weather + " " + celsius)
                 .setContentText(Message)
                 .setContentIntent(notificationPendingIntent);
 
@@ -259,7 +264,6 @@ public class sendNotificationService extends IntentService {
         Random random = new Random();
         int m = random.nextInt();
         mNotificationManager.notify(m, builder.build());
-
 
 
     }

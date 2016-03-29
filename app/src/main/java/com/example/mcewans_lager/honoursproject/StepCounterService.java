@@ -14,7 +14,10 @@ import android.util.Log;
 import android.widget.Toast;
 
 /**
- * Created by mcewans_lager on 16/02/16.
+ * Created by FraserMcEwan on 16/02/16.
+ *
+ * This class provides contextual information through steps taken by the user.
+ *
  */
 public class StepCounterService extends Service implements SensorEventListener {
 
@@ -23,9 +26,6 @@ public class StepCounterService extends Service implements SensorEventListener {
     private boolean sCounter = false;
     private boolean sDetector = false;
     int lastSteps = 0;
-
-
-
 
 
     @Nullable
@@ -41,11 +41,9 @@ public class StepCounterService extends Service implements SensorEventListener {
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         Sensor stepCounter = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
         Sensor stepDetector = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
-        if(stepCounter != null) {
+        if (stepCounter != null) {
             sensorManager.registerListener(this, stepCounter, SensorManager.SENSOR_DELAY_UI);
             sCounter = true;
-        } else {
-//            Toast.makeText(this, "Count sensor not available!", Toast.LENGTH_LONG).show();
         }
 
         if (stepDetector != null && sCounter == false) {
@@ -62,8 +60,8 @@ public class StepCounterService extends Service implements SensorEventListener {
             onDestroy();
         } else {
             Intent i = new Intent(this, MainService.class);
-            i.putExtra("Action","Step");
-            i.putExtra("Status","true");
+            i.putExtra("Action", "Step");
+            i.putExtra("Status", "true");
             startService(i);
 
         }
@@ -77,14 +75,13 @@ public class StepCounterService extends Service implements SensorEventListener {
 
     @Override
     public void onDestroy() {
-    Intent i = new Intent(this, MainService.class);
-    i.putExtra("Action","Step");
-    i.putExtra("Status","false");
+        Intent i = new Intent(this, MainService.class);
+        i.putExtra("Action", "Step");
+        i.putExtra("Status", "false");
         startService(i);
         super.onDestroy();
 
     }
-
 
 
     @Override
@@ -97,7 +94,7 @@ public class StepCounterService extends Service implements SensorEventListener {
             steps = (int) values[0];
         }
 
-        if(steps >= lastSteps) {
+        if (steps >= lastSteps) {
             Intent i = new Intent(this, MainService.class);
             i.putExtra("Action", "GPSteps");
             i.putExtra("StepCount", steps);
@@ -106,9 +103,6 @@ public class StepCounterService extends Service implements SensorEventListener {
         lastSteps = steps;
 
     }
-
-
-
 
 
     @Override

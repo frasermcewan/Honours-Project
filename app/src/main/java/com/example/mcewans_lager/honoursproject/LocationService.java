@@ -25,7 +25,11 @@ import java.util.List;
 
 
 /**
- * Created by mcewans_lager on 01/03/16.
+ * Created by FraserMcEwan on 01/03/16.
+ *
+ * This class forms one of the main prototypes as it provides valuble location information to the MainService
+ * This class allows the MainService to figure out where the user is, track their location and then add geofences in order to
+ * properly track movement when they are exiting a location
  */
 public class LocationService extends Service implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
@@ -52,6 +56,12 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
         Log.i(TAG, "onCreate: ");
         super.onCreate();
 
+
+        /**
+         * Creates a googleAPIClient which allows us to use their Geofence service and request location
+         * updates
+         */
+
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
@@ -69,7 +79,6 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
         mLocationRequest.setInterval(60000);
         mLocationRequest.setFastestInterval(30000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-
 
     }
 
@@ -89,9 +98,9 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
-    Bundle bundle = intent.getExtras();
+        Bundle bundle = intent.getExtras();
 
-        if(bundle!=null) {
+        if (bundle != null) {
 
 
             String ActionName = intent.getStringExtra("Action");
@@ -118,8 +127,8 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
             }
         }
 
-//        return START_STICKY;
-        return START_REDELIVER_INTENT;
+        return START_STICKY;
+        //  return START_REDELIVER_INTENT;
     }
 
 
@@ -135,8 +144,7 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
         sendConnection();
         connected = true;
         initialLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-       getLocation();
-
+        getLocation();
 
 
     }
@@ -152,8 +160,6 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
             sendGPSError();
         }
     }
-
-
 
 
     private void sendGPSError() {
@@ -239,7 +245,7 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
     }
 
     public void sendGPS() {
-        Log.i(TAG, "sendGPS: Sending to Main " );
+        Log.i(TAG, "sendGPS: Sending to Main ");
         Intent gps = new Intent(this, MainService.class);
         Log.i(TAG, "sendGPSLat: " + returnLat);
         Log.i(TAG, "sendGPSLon: " + returnLon);
@@ -249,6 +255,16 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
         gps.putExtra("Lon", returnLon);
         startService(gps);
     }
+
+
+    /**
+     *
+     * The code for creating and registering Geofences is similar to the code that Android and Google Play
+     * Services provide. The code has to be similar to the suggested guidelines otherwise it would not function
+     * as there is only so many ways to build a Geofence, Create a pending intent for it and then register and track them
+     *
+     * Reference to the Source -> http://developer.android.com/training/location/geofencing.html
+     */
 
 
     private void buildGeofences(String id, double latitude, double longitude) {
@@ -262,12 +278,11 @@ public class LocationService extends Service implements GoogleApiClient.Connecti
                         500
                 )
                 .setLoiteringDelay(30000)
-                .setExpirationDuration(7200000)
+                .setExpirationDuration(Geofence.NEVER_EXPIRE)
                 .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
                         Geofence.GEOFENCE_TRANSITION_EXIT | Geofence.GEOFENCE_TRANSITION_DWELL)
                 .build());
     }
-
 
 
     private GeofencingRequest getGeofencingRequest() {

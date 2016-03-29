@@ -16,6 +16,10 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 
+/**
+ * This class provides more contextual information through the use of Weather, it does this by downloading weather
+ * information in XML format which it then parses and returns back to main
+ */
 
 public class weatherIntentService extends IntentService {
 
@@ -38,7 +42,7 @@ public class weatherIntentService extends IntentService {
         handle = new sortXML(secondURL);
         handle.getXML();
 
-        while(!handle.done) {
+        while (!handle.done) {
             try {
                 Thread.sleep(3000);
             } catch (InterruptedException e) {
@@ -57,7 +61,7 @@ public class weatherIntentService extends IntentService {
     private void callMainService() {
 
         Intent l = new Intent(this, MainService.class);
-        l.putExtra("Action","Weather");
+        l.putExtra("Action", "Weather");
         l.putExtra("PrepType", new ArrayListWrapper(PrepType));
         l.putExtra("PrepVolume", new ArrayListWrapper(PrepVolume));
         l.putExtra("WindSpeed", new ArrayListWrapper(WindSpeed));
@@ -78,15 +82,25 @@ public class weatherIntentService extends IntentService {
         }
 
 
-        public void setPrepType(String p) { PrepType.add(p)  ;}
+        public void setPrepType(String p) {
+            PrepType.add(p);
+        }
 
-        public void setPrepVolume(String v) {PrepVolume.add(v);}
+        public void setPrepVolume(String v) {
+            PrepVolume.add(v);
+        }
 
-        public void setWindSpeed(String w) {WindSpeed.add(w);}
+        public void setWindSpeed(String w) {
+            WindSpeed.add(w);
+        }
 
-        public void setTempMax(String tMax) {tempMax.add(tMax);}
+        public void setTempMax(String tMax) {
+            tempMax.add(tMax);
+        }
 
-        public void setTempMin(String tMin) {tempMin.add(tMin);}
+        public void setTempMin(String tMin) {
+            tempMin.add(tMin);
+        }
 
         public ArrayList<String> getPrepType() {
 
@@ -111,8 +125,6 @@ public class weatherIntentService extends IntentService {
         }
 
 
-
-
         public void XMLParse(XmlPullParser parser) {
             try {
                 int eventType = parser.getEventType();
@@ -123,16 +135,14 @@ public class weatherIntentService extends IntentService {
                             setPrepType(parser.getAttributeValue(2));
                             setPrepVolume(parser.getAttributeValue(1));
 
-                        }
-                        else if(parser.getAttributeCount() == 0) {
+                        } else if (parser.getAttributeCount() == 0) {
                             setPrepType("0");
                             setPrepVolume("0");
                         }
-                    }
-                    else if (eventType == XmlPullParser.START_TAG && parser.getName().equals("windSpeed")) {
+                    } else if (eventType == XmlPullParser.START_TAG && parser.getName().equals("windSpeed")) {
                         if (parser.getAttributeCount() > 0) {
                             setWindSpeed(parser.getAttributeValue(0));
-                        } else if (parser.getAttributeCount() == 0){
+                        } else if (parser.getAttributeCount() == 0) {
                             setWindSpeed("0");
                         }
                     } else if (eventType == XmlPullParser.START_TAG && parser.getName().equals("temperature")) {
@@ -159,6 +169,11 @@ public class weatherIntentService extends IntentService {
 
         }
 
+        /**
+         * Initially i wanted this thread to behave as an AsyncTask but it proved too difficult to have an AsyncTask nested inside
+         * a Intent Service as the Intent Service would always finish before the AsyncTask returned, as a result i create a new thread manually
+         * and do my work within that.
+         */
 
         public void getXML() {
             Thread t = new Thread(new Runnable() {
@@ -190,7 +205,6 @@ public class weatherIntentService extends IntentService {
             });
             t.start();
         }
-
 
 
     }

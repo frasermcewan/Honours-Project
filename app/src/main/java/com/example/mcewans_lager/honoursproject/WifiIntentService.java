@@ -21,7 +21,11 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Created by mcewans_lager on 27/02/16.
+ * Created by FraserMcEwan on 27/02/16.
+ *
+ * This class is used to provide location information through the form of Wifi lists
+ * that allow the main service to create a signature of the user which it can then mactch to locations
+ * when they leave or dwell in an area.
  */
 public class WifiIntentService extends IntentService {
 
@@ -61,14 +65,12 @@ public class WifiIntentService extends IntentService {
 
     public void sendIntent() {
         Intent l = new Intent(this, MainService.class);
-        l.putExtra("Action","Wifi");
+        l.putExtra("Action", "Wifi");
         l.putExtra("list", new ArrayListWrapper(theList));
         startService(l);
         theList.clear();
 
     }
-
-
 
 
     class WifiReceiver extends BroadcastReceiver {

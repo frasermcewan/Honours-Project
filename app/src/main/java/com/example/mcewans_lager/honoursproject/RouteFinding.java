@@ -22,6 +22,12 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 
+/**
+ *
+ * This class forms the basic user interface to allow the user to create signatures should they so require. It uses code
+ * that is provided by Google and Android for setting up Map Fragments and editing them
+ *
+ */
 
 public class RouteFinding extends FragmentActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, View.OnClickListener {
 
@@ -44,7 +50,6 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
     private Marker workMarker;
     private Boolean Home = false;
     private Boolean Work = false;
-
 
 
     @Override
@@ -85,7 +90,7 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
     }
 
     @Override
-    protected  void onDestroy() {
+    protected void onDestroy() {
         super.onDestroy();
     }
 
@@ -144,11 +149,6 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
     }
 
 
-
-
-
-
-
     @Override
     public void onConnected(Bundle bundle) {
 
@@ -188,25 +188,25 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
         switch (savedInstance.getId()) {
             case R.id.CreateSigniture:
                 Log.i(TAG, "onClick: ");
-                if(Home && !Work) {
+                if (Home && !Work) {
                     Intent intent = new Intent(this, MainService.class);
                     intent.putExtra("Action", "Main");
-                    intent.putExtra("Location","Home");
+                    intent.putExtra("Location", "Home");
                     intent.putExtra("HomeLat", homeLat);
                     intent.putExtra("HomeLon", homeLon);
                     intent.putExtra("WorkLat", workLat);
                     intent.putExtra("WorkLon", workLon);
                     startService(intent);
-                 } else if (Work && !Home) {
+                } else if (Work && !Home) {
                     Intent inte = new Intent(this, MainService.class);
                     inte.putExtra("Action", "Main");
-                    inte.putExtra("Location","Work");
+                    inte.putExtra("Location", "Work");
                     inte.putExtra("HomeLat", homeLat);
                     inte.putExtra("HomeLon", homeLon);
                     inte.putExtra("WorkLat", workLat);
                     inte.putExtra("WorkLon", workLon);
                     startService(inte);
-                } else if(homeLat == 0 && workLat == 0) {
+                } else if (homeLat == 0 && workLat == 0) {
                     Toast.makeText(this, "Please choose one location", Toast.LENGTH_LONG).show();
                 }
                 break;
@@ -221,7 +221,6 @@ public class RouteFinding extends FragmentActivity implements GoogleApiClient.Co
         }
 
     }
-
 
 
 }

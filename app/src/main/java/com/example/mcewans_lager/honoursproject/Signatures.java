@@ -1,8 +1,6 @@
 package com.example.mcewans_lager.honoursproject;
 
 
-
-
 public class Signatures {
 
     private int _id;
@@ -17,7 +15,7 @@ public class Signatures {
 
     }
 
-    public Signatures(String locationName){
+    public Signatures(String locationName) {
         this._locationName = locationName;
 
     }
@@ -27,7 +25,7 @@ public class Signatures {
     }
 
 
-    public void setTime (Double timeIn) {
+    public void setTime(Double timeIn) {
         this.Time = timeIn;
     }
 
@@ -45,26 +43,32 @@ public class Signatures {
         this._Wifi = Wifi;
     }
 
-    public void setLon(String Long) { this._lon = Long;}
+    public void setLon(String Long) {
+        this._lon = Long;
+    }
 
     public String getLocationName() {
         return _locationName;
     }
 
-    public int getID(){
+    public int getID() {
         return _id;
     }
 
-    public String getLat () {
+    public String getLat() {
         return _lat;
     }
 
-    public String getWifi () {
+    public String getWifi() {
         return _Wifi;
     }
 
-    public String get_lon() { return _lon;}
+    public String get_lon() {
+        return _lon;
+    }
 
-    public Double getTime() { return Time;}
+    public Double getTime() {
+        return Time;
+    }
 
 }

@@ -24,6 +24,16 @@ import java.util.List;
 
 public class GeofenceTransitionsIntentService extends IntentService {
 
+
+    /**
+     * This class uses samples provided by GooglePlayServices in order to tell the Main Service what transistion has happened
+     * between Geofences and what fence was triggered. The source of the code used is cited in the report and below
+     *
+     * https://github.com/googlesamples/android-Geofencing/blob/master/Application/src/main/java/com/example/android/wearable/geofencing/GeofenceTransitionsIntentService.java
+     */
+
+
+
     protected static final String TAG = "GeofenceTransitions";
     String geofenceTransitionDetails;
     String transistionString;
@@ -34,9 +44,12 @@ public class GeofenceTransitionsIntentService extends IntentService {
     }
 
 
-
     @Override
     protected void onHandleIntent(Intent intent) {
+
+        /**
+         * Called whenever a Geofence transistion happens, it then works out what hapepned and notifies the MainService
+         */
 
         GeofencingEvent geofencingEvent = GeofencingEvent.fromIntent(intent);
 
@@ -64,7 +77,7 @@ public class GeofenceTransitionsIntentService extends IntentService {
 
     private void alertMainService() {
         Intent intent = new Intent(this, MainService.class);
-        intent.putExtra("Action","Geofence");
+        intent.putExtra("Action", "Geofence");
         intent.putExtra("Details", geofenceTransitionDetails);
         intent.putExtra("Tran", returnTransistionString());
         startService(intent);
@@ -72,6 +85,18 @@ public class GeofenceTransitionsIntentService extends IntentService {
 
 
     private String getGeofenceTransitionDetails(
+
+            /**
+             * This method was taken from GooglePlay Service example which are cited in the references in the report
+             * This method allows the main service to figure out what Geofence was triggered, it then calls another method
+             * to figure out what transition occoured
+             *
+             * Source Code found here
+             * https://github.com/googlesamples/android-Geofencing/blob/master/Application/src/main/java/com/example/android/wearable/geofencing/GeofenceTransitionsIntentService.java
+             */
+
+
+
             Context context,
             int geofenceTransition,
             List<Geofence> triggeringGeofences) {
@@ -85,7 +110,7 @@ public class GeofenceTransitionsIntentService extends IntentService {
             triggeringGeofencesIdsList.add(geofence.getRequestId());
 
         }
-        String triggeringGeofencesIdsString = TextUtils.join(", ",  triggeringGeofencesIdsList);
+        String triggeringGeofencesIdsString = TextUtils.join(", ", triggeringGeofencesIdsList);
 
         return geofenceTransitionString + ": " + triggeringGeofencesIdsString;
     }
@@ -97,12 +122,16 @@ public class GeofenceTransitionsIntentService extends IntentService {
 
     }
 
-    private String returnTransistionString () {
-        return  transistionString;
+    private String returnTransistionString() {
+        return transistionString;
     }
 
 
     private String getTransitionString(int transitionType) {
+        /**
+         * Works out what transition happened for each Geofence that was triggered
+         */
+
         switch (transitionType) {
             case Geofence.GEOFENCE_TRANSITION_ENTER:
                 return "Enter";
